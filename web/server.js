@@ -6,11 +6,7 @@ const cors = require("cors");
 
 // Middleware
 app.use(bodyParser.json());
-app.use(
-  cors({
-    origin: "https://sentiview.vercel.app/", // React dev server
-  })
-);
+app.use(cors());
 
 // Route to predict sentiment
 app.get("/predict", (req, res) => {
@@ -43,6 +39,6 @@ app.post("/predict", (req, res) => {
 });
 
 // Start server
-app.listen(5000, () => {
-  console.log("Server running on http://localhost:5000");
-});
+app.listen(5000 || process.env.PORT, () =>
+  console.log("Setiview app listening on port https://localhost:5000")
+);
