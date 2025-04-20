@@ -8,11 +8,14 @@ const cors = require("cors");
 app.use(bodyParser.json());
 app.use(
   cors({
-    origin: "http://localhost:5173", // React dev server
+    origin: "https://sentiview.vercel.app/", // React dev server
   })
 );
 
 // Route to predict sentiment
+app.get("/predict", (req, res) => {
+  res.json({ sentiment: "predict" });
+});
 app.post("/predict", (req, res) => {
   const text = req.body.text;
 
