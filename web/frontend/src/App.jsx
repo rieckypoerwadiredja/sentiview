@@ -17,9 +17,12 @@ function App() {
     setSentiment(""); // Reset hasil sebelumnya
 
     try {
-      const response = await axios.post("http://localhost:5000/predict", {
-        text: inputText,
-      });
+      const response = await axios.post(
+        "https://api-sentiview.vercel.app/predict",
+        {
+          text: inputText,
+        }
+      );
       setSentiment(response.data.sentiment);
     } catch (error) {
       console.error("There was an error making the request:", error);
