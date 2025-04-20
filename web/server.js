@@ -16,7 +16,7 @@ app.post("/predict", (req, res) => {
   const text = req.body.text;
 
   // Run the Python script and pass the text to it
-  const python = spawn("python", ["../predict_sentiment.py", text]);
+  const python = spawn("python", ["./predict_sentiment.py", text]);
 
   let result = "";
 
