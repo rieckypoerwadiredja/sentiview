@@ -3,7 +3,7 @@ from flask_cors import CORS  # <-- tambahkan ini
 import joblib
 import re
 import nltk
-nltk.data.path.append('./nltk_data')
+nltk.data.path.append('./nltk/nltk_data')
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
