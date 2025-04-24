@@ -8,7 +8,7 @@ from nltk.stem import WordNetLemmatizer
 
 # Setup awal
 # Tentukan folder tempat menyimpan data NLTK
-nltk.data.path.append('./nltk/nltk_data')  # Atur folder lokal
+nltk.data.path = ['./nltk/nltk_data']   # Atur folder lokal
 
 # Gunakan data yang ada tanpa mengunduhnya
 from nltk.corpus import stopwords
