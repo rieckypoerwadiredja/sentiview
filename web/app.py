@@ -7,20 +7,18 @@ nltk.data.path.append('./nltk/nltk_data')
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-# Setup awal NLTK
+# Setup awal
 # nltk.download('punkt', download_dir='./nltk/nltk_data')
 # nltk.download('stopwords', download_dir='./nltk/nltk_data')
 # nltk.download('wordnet', download_dir='./nltk/nltk_data')
 
-# Inisialisasi Flask
 app = Flask(__name__)
-CORS(app)  # <-- aktifkan CORS di seluruh route
+CORS(app)
 
-# Load model dan vectorizer
-model = joblib.load("./model/sentiment_model.pkl")
-vectorizer = joblib.load("./model/vectorizer.pkl")
+# Load model NLTK (NaiveBayesClassifier)
+model = joblib.load("./model/nltk_sentiment_model.pkl")
 
-# Fungsi preprocessing
+# Preprocessing
 stop_words = set(stopwords.words("english"))
 lemmatizer = WordNetLemmatizer()
 
@@ -29,7 +27,11 @@ def clean_text(text):
     text = re.sub(r"http\S+|www\S+|[^a-z\s]", "", text)
     tokens = nltk.word_tokenize(text)
     tokens = [lemmatizer.lemmatize(w) for w in tokens if w not in stop_words and len(w) > 2]
-    return " ".join(tokens)
+    return tokens
+
+# Konversi token ke fitur dict → sesuai yang digunakan di training
+def text_to_features(tokens):
+    return {word: True for word in tokens}
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -39,12 +41,13 @@ def predict():
         return jsonify({"error": "No text field provided"}), 400
 
     raw_text = data["text"]
-    cleaned = clean_text(raw_text)
-    vectorized = vectorizer.transform([cleaned])
-    prediction = model.predict(vectorized)[0]
+    tokens = clean_text(raw_text)
+    features = text_to_features(tokens)
+    prediction = model.classify(features)
 
     return jsonify({"sentiment": prediction})
 
+# Jalankan server
 import os
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
