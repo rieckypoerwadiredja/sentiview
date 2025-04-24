@@ -11,7 +11,7 @@ from nltk.stem import WordNetLemmatizer
 nltk.data.path = ['./nltk/nltk_data']   # Atur folder lokal
 nltk.data.path.append("./nltk/nltk_data")
 
-nltk.download('stopwords', download_dir='./nltk/nltk_data')
+nltk.download('stopwords')
 # Gunakan data yang ada tanpa mengunduhnya
 from nltk.corpus import stopwords
 from nltk.corpus import wordnet
