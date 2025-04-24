@@ -3,17 +3,18 @@ from flask_cors import CORS
 import joblib
 import re
 import nltk
-nltk.data.path.append('./nltk/nltk_data')
-from nltk.corpus import stopwords
+
 from nltk.stem import WordNetLemmatizer
 
 # Setup awal
-# nltk.download('punkt', download_dir='./nltk/nltk_data')
-# nltk.download('stopwords', download_dir='./nltk/nltk_data')
-# nltk.download('wordnet', download_dir='./nltk/nltk_data')
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('wordnet')
+# Tentukan folder tempat menyimpan data NLTK
+nltk.data.path.append('./nltk/nltk_data')  # Atur folder lokal
+
+# Gunakan data yang ada tanpa mengunduhnya
+from nltk.corpus import stopwords
+from nltk.corpus import wordnet
+from nltk.tokenize import word_tokenize
+
 
 app = Flask(__name__)
 CORS(app)
