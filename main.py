@@ -1,18 +1,14 @@
-# Sentiment Analysis Training and Evaluation Pipeline
-
 # 📦 Step 1: Import Library
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import joblib
 import re
 import nltk
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, ConfusionMatrixDisplay
+import random
+import pickle
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+from nltk import NaiveBayesClassifier, classify
 
 # Setup awal
 nltk.download('punkt')
@@ -25,63 +21,52 @@ val = pd.read_csv('./data/val_df.csv')
 test = pd.read_csv('./data/test_df.csv')
 
 # 🧹 Step 3: Data Cleaning
-print("🔍 Cek null values:\n")
-print("Train:\n", train.isnull().sum())
-print("Validation:\n", val.isnull().sum())
-print("Test:\n", test.isnull().sum())
-
-# Hapus data yang null
 train.dropna(inplace=True)
 val.dropna(inplace=True)
 test.dropna(inplace=True)
 
-# Lihat distribusi sentimen
-plt.figure(figsize=(8,5))
+# Visualisasi distribusi label
+plt.figure(figsize=(8, 5))
 sns.countplot(x=train['sentiment'])
 plt.title("Distribusi Label Sentimen - Train Set")
 plt.xlabel("Sentiment")
 plt.ylabel("Jumlah")
 plt.show()
 
-# 🧼 Step 4: Preprocessing Text
+# 🧼 Step 4: Preprocessing
 stop_words = set(stopwords.words("english"))
 lemmatizer = WordNetLemmatizer()
 
-def clean_text(text):
+def preprocess(text):
     text = str(text).lower()
     text = re.sub(r"http\S+|www\S+|[^a-z\s]", "", text)
     tokens = nltk.word_tokenize(text)
     tokens = [lemmatizer.lemmatize(w) for w in tokens if w not in stop_words and len(w) > 2]
-    return " ".join(tokens)
+    return tokens
 
-train["cleaned_text"] = train["text"].apply(clean_text)
-val["cleaned_text"] = val["text"].apply(clean_text)
-test["cleaned_text"] = test["text"].apply(clean_text)
+def text_to_features(tokens):
+    return {word: True for word in tokens}
 
-# 🎯 Step 5: Vectorization
-vectorizer = CountVectorizer()
-X_train = vectorizer.fit_transform(train["cleaned_text"])
-X_val = vectorizer.transform(val["cleaned_text"])
-X_test = vectorizer.transform(test["cleaned_text"])
+# Konversi data ke format nltk
+def convert_to_nltk_format(df):
+    return [(text_to_features(preprocess(row["text"])), row["sentiment"]) for _, row in df.iterrows()]
 
-y_train = train["sentiment"]
-y_val = val["sentiment"]
-y_test = test["sentiment"]
+train_set = convert_to_nltk_format(train)
+val_set = convert_to_nltk_format(val)
+test_set = convert_to_nltk_format(test)
 
-# 🤖 Step 6: Train Model
-model = LogisticRegression(max_iter=1000)
-model.fit(X_train, y_train)
+# 🤖 Step 5: Train Model
+model = NaiveBayesClassifier.train(train_set)
 
-# 💾 Step 7: Save Model
-joblib.dump(model, "./web/model/sentiment_model.pkl")
-joblib.dump(vectorizer, "./web/model/vectorizer.pkl")
+# 💾 Step 6: Save Model
+with open("./web/model/nltk_sentiment_model.pkl", "wb") as f:
+    pickle.dump(model, f)
 
-# 🧪 Step 8: Evaluation
-print("\n🧪 Evaluation on Test Set:")
-y_pred = model.predict(X_test)
-print(classification_report(y_test, y_pred))
+# 🧪 Step 7: Evaluation
+def evaluate_model(model, dataset, label="Test"):
+    accuracy = classify.accuracy(model, dataset)
+    print(f"\n✅ {label} Accuracy: {accuracy:.2f}")
+    model.show_most_informative_features(10)
 
-# Confusion Matrix
-ConfusionMatrixDisplay.from_predictions(y_test, y_pred)
-plt.title("Confusion Matrix on Test Data")
-plt.show()
+evaluate_model(model, val_set, "Validation")
+evaluate_model(model, test_set, "Test")
