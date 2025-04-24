@@ -1,34 +1,31 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS 
-import joblib
-import re
 import nltk
 import logging
 import os
-
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import joblib
+import re
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords  # Pastikan ini diimpor setelah nltk
 from nltk.stem import WordNetLemmatizer
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 
-# Path penyimpanan NLTK untuk Vercel (writeable)
+# Setup NLTK data path
 nltk_data_path = "/tmp/nltk_data"
 os.makedirs(nltk_data_path, exist_ok=True)
-
-# Daftarkan path-nya
 nltk.data.path.append(nltk_data_path)
 
-# Download resource yang dibutuhkan (kalau belum ada)
+# Download NLTK resources
 for resource in ["punkt", "stopwords", "wordnet"]:
     try:
-        nltk.data.find(f"corpora/{resource}")  # cek apakah sudah ada
-        logging.info(f"{resource} sudah ada.")
+        nltk.data.find(f"corpora/{resource}")  # Cek jika sudah ada
     except LookupError:
         logging.info(f"{resource} tidak ditemukan, mengunduh...")
         nltk.download(resource, download_dir=nltk_data_path)
-        
-        
 
+# Flask Setup
 app = Flask(__name__)
 CORS(app)
 
@@ -36,7 +33,7 @@ CORS(app)
 model = joblib.load("./model/nltk_sentiment_model.pkl")
 
 # Preprocessing
-stop_words = set(stopwords.words("english"))
+stop_words = set(stopwords.words("english"))  # Pastikan ini diletakkan setelah import stopwords
 lemmatizer = WordNetLemmatizer()
 
 def clean_text(text):
