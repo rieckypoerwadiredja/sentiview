@@ -3,20 +3,31 @@ from flask_cors import CORS
 import joblib
 import re
 import nltk
+import logging
+import os
 
 from nltk.stem import WordNetLemmatizer
 
-# Setup awal
-# Tentukan folder tempat menyimpan data NLTK
-nltk.data.path = ['./nltk/nltk_data']   # Atur folder lokal
-nltk.data.path.append("./nltk/nltk_data")
+# Setup logging
+logging.basicConfig(level=logging.INFO)
 
-nltk.download('stopwords')
-# Gunakan data yang ada tanpa mengunduhnya
-from nltk.corpus import stopwords
-from nltk.corpus import wordnet
-from nltk.tokenize import word_tokenize
+# Path penyimpanan NLTK untuk Vercel (writeable)
+nltk_data_path = "/tmp/nltk_data"
+os.makedirs(nltk_data_path, exist_ok=True)
 
+# Daftarkan path-nya
+nltk.data.path.append(nltk_data_path)
+
+# Download resource yang dibutuhkan (kalau belum ada)
+for resource in ["punkt", "stopwords", "wordnet"]:
+    try:
+        nltk.data.find(f"corpora/{resource}")  # cek apakah sudah ada
+        logging.info(f"{resource} sudah ada.")
+    except LookupError:
+        logging.info(f"{resource} tidak ditemukan, mengunduh...")
+        nltk.download(resource, download_dir=nltk_data_path)
+        
+        
 
 app = Flask(__name__)
 CORS(app)
