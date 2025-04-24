@@ -11,6 +11,9 @@ from nltk.stem import WordNetLemmatizer
 # nltk.download('punkt', download_dir='./nltk/nltk_data')
 # nltk.download('stopwords', download_dir='./nltk/nltk_data')
 # nltk.download('wordnet', download_dir='./nltk/nltk_data')
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
 
 app = Flask(__name__)
 CORS(app)
