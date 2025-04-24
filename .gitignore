@@ -5,4 +5,4 @@
 /data/predict-id.csv
 /data/archive
 
-venv/
+.venv/
