@@ -7,8 +7,16 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import time
+import os
 
 def scrape_bestbuy_product(url):
+    # Tentukan direktori tempat menyimpan chromedriver
+    chromedriver_path = "/tmp/chromedriver"
+    os.makedirs(chromedriver_path, exist_ok=True)
+
+    # Set environment variable untuk WebDriver Manager
+    os.environ['WDM_LOCAL'] = chromedriver_path
+
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--disable-gpu")
