@@ -18,17 +18,11 @@ def scrape_bestbuy_product(url):
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                          "AppleWebKit/537.36 (KHTML, like Gecko) "
                          "Chrome/122.0.0.0 Safari/537.36")
-    options.add_argument("--disable-dev-shm-usage")
-    
-    # Pastikan direktori untuk cache driver tersedia
-    os.makedirs('/tmp/wdm', exist_ok=True)
-
-    # Set environment agar webdriver_manager simpan ke /tmp
-    os.environ['WDM_LOCAL'] = '1'
-    os.environ['WDM_CACHE_DIR'] = '/tmp/wdm'
-
-    # Baru setelah itu jalankan ChromeDriverManager
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    os.system("cp chromedriver/chromedriver /tmp/chromedriver")
+    options = Options()
+    options.add_argument("--headless=new")
+    service = webdriver.ChromeService(executable_path='/tmp/chromedriver',log_output='/tmp/chromedriver.log')
+    driver = webdriver.Chrome(service=service,options=options)
 
     try:
         driver.get(url)
