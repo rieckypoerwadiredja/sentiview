@@ -31,10 +31,11 @@ def scrape_bestbuy_product(url):
     try:
         driver.get(url)
         
-         # Wait for the main price element to appear (up to 10 seconds)
+        # Wait for the main price element to appear (up to 10 seconds)
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, "large-customer-price"))
         )
+
         start_total = time.time()
         soup = BeautifulSoup(driver.page_source, 'html.parser')
 
@@ -54,7 +55,6 @@ def scrape_bestbuy_product(url):
         image_section = soup.find('div', class_='pr-300')
         image_tags = image_section.find_all('img') if image_section else []
         image_links = [img['src'] for img in image_tags if img.get('src')]
-        end_total_detail = time.time()
 
         # Total number of reviews (taken from text like "372 reviews")
         total_reviews_tag = soup.find('div', class_='v-text-dark-gray text-center', attrs={'aria-hidden': 'true'})
@@ -66,7 +66,7 @@ def scrape_bestbuy_product(url):
                 total_reviews = None
         else:
             total_reviews = None
-            
+        
         # Navigate to the reviews section by clicking the 'See All Customer Reviews' button
         review_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, "//button[span[text()='See All Customer Reviews']]"))
@@ -112,11 +112,9 @@ def scrape_bestbuy_product(url):
         end_total_review = time.time()
         rata_per_review = (end_total_review - start_total_review) / len(review_items) if review_items else 0
 
-            
         end_total = time.time()
         print(f"Total waktu scraping: {end_total - start_total:.2f} detik")
         print(f"Total waktu scraping Review: {end_total_review - start_total_review:.2f} detik")
-        print(f"Total waktu scraping Details: {end_total_detail - start_total:.2f} detik")
         print(f"Rata-rata waktu per review: {rata_per_review:.4f} detik")
         
         return {
@@ -128,8 +126,6 @@ def scrape_bestbuy_product(url):
             },
             'reviews': reviews
         }
-        
-
     finally:
         driver.quit()
 
@@ -138,4 +134,3 @@ def scrape_bestbuy_product(url):
 # url += "&intl=nosplash" # Skip Region Select
 # data = scrape_bestbuy_product(url)
 # print(data)
-
