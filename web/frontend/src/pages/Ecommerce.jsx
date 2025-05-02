@@ -21,13 +21,16 @@ function Ecommerce() {
     const link = url + "&intl=nosplash";
     setIsLoading(true); // Start loading
     try {
-      const response = await fetch("http://localhost:5000/analyze-bestbuy", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url: link }),
-      });
+      const response = await fetch(
+        "https://api-sentiview.vercel.app/analyze-bestbuy",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ url: link }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch product data");
