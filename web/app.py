@@ -8,6 +8,7 @@ import re
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords  # Pastikan ini diimpor setelah nltk
 from nltk.stem import WordNetLemmatizer
+from scrape.bestbuy.scrape_bestbuy import scrape_bestbuy_product
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -60,6 +61,35 @@ def predict():
     prediction = model.classify(features)
 
     return jsonify({"sentiment": prediction})
+
+@app.route("/analyze-bestbuy", methods=["POST"])
+def scrape():
+    data = request.get_json()
+    if "url" not in data:
+        return jsonify({"error": "No url field provided"}), 400
+    url = data["url"]
+    print(url)
+    try:
+        product_data = scrape_bestbuy_product(url)
+
+        # Proses analisis sentimen untuk setiap review
+        for review in product_data.get("reviews", []):
+            content = review.get("review_title", "")
+            if content:
+                tokens = clean_text(content)
+                features = text_to_features(tokens)
+                sentiment = model.classify(features)
+                review["sentiment"] = sentiment
+            else:
+                review["sentiment"] = "unknown"
+
+        return jsonify(product_data)
+
+    except Exception as e:
+        logging.error(f"Gagal scraping: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
 
 # Jalankan server
 import os
