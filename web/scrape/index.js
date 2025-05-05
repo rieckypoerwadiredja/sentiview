@@ -7,10 +7,12 @@ import cors from "cors";
 
 const app = express();
 app.use(cors());
+app.use(express.json());
+
 const port = process.env.PORT || 3000;
 
 app.post("/scrape/details", async (req, res) => {
-  const { url } = req.query;
+  const { url } = req.body;
 
   if (!url) {
     return res.status(400).send("URL parameter is required");
@@ -38,7 +40,7 @@ app.post("/scrape/details", async (req, res) => {
 });
 
 app.post("/scrape/reviews", async (req, res) => {
-  const { url } = req.query;
+  const { url } = req.body;
 
   if (!url) {
     return res.status(400).send("URL parameter is required");
