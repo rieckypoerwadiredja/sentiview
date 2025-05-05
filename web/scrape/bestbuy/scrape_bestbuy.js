@@ -52,7 +52,7 @@ export default async function scrapeBestBuyProduct(url) {
       const text = await page.evaluate((el) => el.textContent, btn);
       if (text.includes("See All Customer Reviews")) {
         await btn.click();
-        await page.waitForSelector(".ugc-recommendation", { timeout: 10000 });
+        await page.waitForSelector(".ugc-recommendation", { timeout: 5000 });
         break;
       }
     }
