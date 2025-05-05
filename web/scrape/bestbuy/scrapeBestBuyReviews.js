@@ -1,3 +1,4 @@
+import * as cheerio from "cheerio";
 export async function scrapeBestBuyReviews(page, url) {
   await page.goto(url, {
     waitUntil: "domcontentloaded",
