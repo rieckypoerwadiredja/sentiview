@@ -1,14 +1,16 @@
-import chromium from "@sparticuz/chromium";
-import puppeteer from "puppeteer-core";
+// scrape_bestbuy.js
+import puppeteer from "puppeteer";
 import * as cheerio from "cheerio";
 
 export default async function scrapeBestBuyProduct(url) {
   const browser = await puppeteer.launch({
-    args: chromium.args,
-    defaultViewport: chromium.defaultViewport,
-    executablePath: await chromium.executablePath(), // Penting!
-    headless: chromium.headless,
-    ignoreHTTPSErrors: true,
+    headless: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--window-size=1920,1080",
+      "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    ],
   });
 
   const page = await browser.newPage();
@@ -17,19 +19,26 @@ export default async function scrapeBestBuyProduct(url) {
     const startTotal = Date.now();
 
     await page.goto(url, {
-      waitUntil: "domcontentloaded",
-      timeout: 40000,
+      waitUntil: "networkidle2",
+      timeout: 0,
     });
 
-    await page.waitForSelector("#large-customer-price", { timeout: 5000 });
+    // Tunggu elemen harga muncul
+    await page.waitForSelector("#large-customer-price", { timeout: 10000 });
 
     const content = await page.content();
     const $ = cheerio.load(content);
 
+    // Judul
     const title = $("h1").first().text().trim();
+
+    // Harga
     const price = $("#large-customer-price").text().trim();
+
+    // Deskripsi
     const description = $("div.body-copy-lg.pt-200.pb-300").text().trim();
 
+    // Gambar
     const imageLinks = [];
     $("div.pr-300 img").each((i, el) => {
       const src = $(el).attr("src");
@@ -38,6 +47,7 @@ export default async function scrapeBestBuyProduct(url) {
 
     const endTotalDetail = Date.now();
 
+    // Total ulasan
     let totalReviews = null;
     const reviewText = $('div.v-text-dark-gray.text-center[aria-hidden="true"]')
       .text()
@@ -47,6 +57,7 @@ export default async function scrapeBestBuyProduct(url) {
       if (match) totalReviews = parseInt(match[0].replace(/,/g, ""));
     }
 
+    // Cari dan klik tombol "See All Customer Reviews" tanpa XPath
     const buttons = await page.$$("button");
     for (const btn of buttons) {
       const text = await page.evaluate((el) => el.textContent, btn);
@@ -61,7 +72,7 @@ export default async function scrapeBestBuyProduct(url) {
     const $$ = cheerio.load(reviewContent);
 
     const reviews = [];
-    const reviewItems = $$(".review-item").slice(0, 2);
+    const reviewItems = $$(".review-item");
     const startTotalReview = Date.now();
 
     reviewItems.each((i, el) => {
