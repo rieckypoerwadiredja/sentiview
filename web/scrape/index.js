@@ -3,8 +3,10 @@ import puppeteer from "puppeteer-core";
 import chromium from "@sparticuz/chromium";
 import { scrapeBestBuyDetails } from "./bestbuy/scrapeBestBuyDetails.js";
 import { scrapeBestBuyReviews } from "./bestbuy/scrapeBestBuyReviews.js";
+import cors from "cors";
 
 const app = express();
+app.use(cors());
 const port = process.env.PORT || 3000;
 
 app.get("/scrape/details", async (req, res) => {

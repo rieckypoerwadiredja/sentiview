@@ -23,7 +23,7 @@ function Ecommerce() {
 
     try {
       const response = await fetch(
-        "https://api-sentiview-scraper.vercel.app/scrape-bestbuy",
+        "https://api-sentiview-scraper.vercel.app/scrape/details",
         {
           method: "POST",
           headers: {
