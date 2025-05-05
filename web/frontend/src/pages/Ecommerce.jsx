@@ -1,14 +1,10 @@
 import React, { useState } from "react";
 
-function Ecommerce() {
+const BestBuyScraper = () => {
   const [url, setUrl] = useState("");
   const [responseData, setResponseData] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleUrlChange = (e) => {
-    setUrl(e.target.value);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,9 +23,7 @@ function Ecommerce() {
         "https://api-sentiview-scraper.vercel.app/scrape/details",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url: formattedUrl }),
         }
       );
@@ -40,14 +34,12 @@ function Ecommerce() {
 
       const productDetails = await detailsResponse.json();
 
-      // Fetch reviews
+      // Fetch product reviews
       const reviewsResponse = await fetch(
         "https://api-sentiview-scraper.vercel.app/scrape/reviews",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url: formattedUrl }),
         }
       );
@@ -58,10 +50,10 @@ function Ecommerce() {
 
       const reviews = await reviewsResponse.json();
 
-      // Combine both into one object
+      // Gabungkan hasilnya
       setResponseData({
-        product_details: productDetails.product_details,
-        reviews: reviews.reviews,
+        ...productDetails,
+        reviews,
       });
 
       setError(null);
@@ -74,78 +66,55 @@ function Ecommerce() {
   };
 
   return (
-    <div style={{ fontFamily: "Arial, sans-serif", padding: "20px" }}>
-      <h1>E-commerce Product Scraper</h1>
+    <div style={{ maxWidth: "800px", margin: "auto", padding: "20px" }}>
+      <h2>BestBuy Scraper</h2>
 
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="url">Product URL:</label>
-        <br />
+      <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
         <input
-          id="url"
           type="text"
           value={url}
-          onChange={handleUrlChange}
-          placeholder="Enter product URL"
-          style={{
-            width: "100%",
-            maxWidth: "400px",
-            padding: "10px",
-            marginTop: "5px",
-            marginBottom: "15px",
-          }}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="Enter BestBuy product URL"
+          style={{ width: "100%", padding: "10px" }}
         />
-        <br />
-        <button
-          type="submit"
-          disabled={isLoading}
-          style={{
-            padding: "10px 20px",
-            cursor: isLoading ? "not-allowed" : "pointer",
-          }}
-        >
-          {isLoading ? "Loading..." : "Scrape Product"}
+        <button type="submit" style={{ marginTop: "10px" }}>
+          {isLoading ? "Loading..." : "Scrape"}
         </button>
       </form>
 
-      {isLoading && (
-        <p style={{ color: "blue" }}>Fetching data, please wait...</p>
-      )}
-      {error && <p style={{ color: "red" }}>Error: {error}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
       {responseData && (
-        <div style={{ marginTop: "30px" }}>
-          <h2>Product Details</h2>
+        <div>
+          <h3>Product Details</h3>
           <p>
-            <strong>Title:</strong> {responseData.product_details.title}
+            <strong>Title:</strong> {responseData.title}
           </p>
           <p>
-            <strong>Price:</strong> {responseData.product_details.price}
+            <strong>Price:</strong> {responseData.price}
           </p>
           <p>
-            <strong>Description:</strong>{" "}
-            {responseData.product_details.description}
+            <strong>Description:</strong> {responseData.description}
+          </p>
+          <p>
+            <strong>Total Reviews:</strong> {responseData.totalReviews}
           </p>
 
-          <div>
-            <strong>Images:</strong>
-            <ul
-              style={{
-                display: "flex",
-                gap: "10px",
-                listStyle: "none",
-                padding: 0,
-              }}
-            >
-              {responseData.product_details.images.map((image, index) => (
-                <li key={index}>
-                  <img src={image} alt={`Product ${index + 1}`} width="100" />
-                </li>
-              ))}
-            </ul>
-          </div>
+          {responseData.images && responseData.images.length > 0 && (
+            <>
+              <h4>Images:</h4>
+              <ul style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                {responseData.images.map((img, index) => (
+                  <li key={index}>
+                    <img src={img} alt={`Product ${index + 1}`} width="100" />
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
 
           <h3>Reviews</h3>
-          {responseData.reviews.length > 0 ? (
+          {responseData.reviews && responseData.reviews.length > 0 ? (
             responseData.reviews.map((review, index) => (
               <div
                 key={index}
@@ -168,9 +137,6 @@ function Ecommerce() {
                   <strong>Recommended:</strong>{" "}
                   {review.recommended === "true" ? "Yes" : "No"}
                 </p>
-                <p>
-                  <strong>Sentiment:</strong> {review.sentiment}
-                </p>
               </div>
             ))
           ) : (
@@ -180,6 +146,6 @@ function Ecommerce() {
       )}
     </div>
   );
-}
+};
 
-export default Ecommerce;
+export default BestBuyScraper;

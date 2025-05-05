@@ -41,6 +41,6 @@ export async function scrapeBestBuyReviews(page, url) {
         recommended,
       });
     });
-
+  console.log(reviews);
   return reviews;
 }
