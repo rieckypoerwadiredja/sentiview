@@ -1,18 +1,33 @@
-// scrape_bestbuy.js
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+import chrome from "chrome-aws-lambda";
 import * as cheerio from "cheerio";
 
 export default async function scrapeBestBuyProduct(url) {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: [
+  const options = {};
+
+  // Menentukan opsi untuk menjalankan Chromium di Vercel atau AWS Lambda
+  if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+    options.args = [
+      ...chrome.args,
+      "--hide-scrollbars",
+      "--disable-web-security",
+    ];
+    options.defaultViewport = chrome.defaultViewport;
+    options.executablePath = await chrome.executablePath;
+    options.headless = chrome.headless;
+    options.ignoreHTTPSErrors = true;
+  } else {
+    options.headless = true; // Normal run di lokal
+    options.args = [
       "--no-sandbox",
       "--disable-setuid-sandbox",
       "--window-size=1920,1080",
       "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-    ],
-  });
+    ];
+  }
 
+  // Memulai Puppeteer
+  const browser = await puppeteer.launch(options);
   const page = await browser.newPage();
 
   try {
@@ -57,7 +72,7 @@ export default async function scrapeBestBuyProduct(url) {
       if (match) totalReviews = parseInt(match[0].replace(/,/g, ""));
     }
 
-    // Cari dan klik tombol "See All Customer Reviews" tanpa XPath
+    // Cari dan klik tombol "See All Customer Reviews"
     const buttons = await page.$$("button");
     for (const btn of buttons) {
       const text = await page.evaluate((el) => el.textContent, btn);
