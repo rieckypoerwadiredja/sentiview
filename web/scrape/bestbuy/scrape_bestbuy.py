@@ -7,7 +7,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import time
-import os
 
 def scrape_bestbuy_product(url):
     options = Options()
@@ -18,11 +17,8 @@ def scrape_bestbuy_product(url):
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                          "AppleWebKit/537.36 (KHTML, like Gecko) "
                          "Chrome/122.0.0.0 Safari/537.36")
-    os.system("cp chromedriver/chromedriver /tmp/chromedriver")
-    options = Options()
-    options.add_argument("--headless=new")
-    service = webdriver.ChromeService(executable_path='/tmp/chromedriver',log_output='/tmp/chromedriver.log')
-    driver = webdriver.Chrome(service=service,options=options)
+
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
     try:
         driver.get(url)
