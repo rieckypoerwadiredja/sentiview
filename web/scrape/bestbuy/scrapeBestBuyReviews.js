@@ -2,7 +2,7 @@ import * as cheerio from "cheerio";
 export async function scrapeBestBuyReviews(page, url) {
   await page.goto(url, {
     waitUntil: "domcontentloaded",
-    timeout: 40000,
+    timeout: 60000,
   });
 
   const buttons = await page.$$("button");

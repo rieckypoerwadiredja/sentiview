@@ -22,7 +22,8 @@ function Ecommerce() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
+      // Fetch product details
+      const detailsResponse = await fetch(
         "https://api-sentiview-scraper.vercel.app/scrape/details",
         {
           method: "POST",
@@ -33,12 +34,36 @@ function Ecommerce() {
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch product data");
+      if (!detailsResponse.ok) {
+        throw new Error("Failed to fetch product details");
       }
 
-      const data = await response.json();
-      setResponseData(data);
+      const productDetails = await detailsResponse.json();
+
+      // Fetch reviews
+      const reviewsResponse = await fetch(
+        "https://api-sentiview-scraper.vercel.app/scrape/reviews",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ url: formattedUrl }),
+        }
+      );
+
+      if (!reviewsResponse.ok) {
+        throw new Error("Failed to fetch product reviews");
+      }
+
+      const reviews = await reviewsResponse.json();
+
+      // Combine both into one object
+      setResponseData({
+        product_details: productDetails.product_details,
+        reviews: reviews.reviews,
+      });
+
       setError(null);
     } catch (err) {
       setError(err.message || "Something went wrong");
