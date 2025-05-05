@@ -17,7 +17,7 @@ export default async function scrapeBestBuyProduct(url) {
     const startTotal = Date.now();
 
     await page.goto(url, {
-      waitUntil: "networkidle2",
+      waitUntil: "domcontentloaded",
       timeout: 40000,
     });
 
