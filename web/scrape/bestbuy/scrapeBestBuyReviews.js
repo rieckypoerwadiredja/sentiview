@@ -13,7 +13,6 @@ export async function scrapeBestBuyReviews(page, url) {
     if (text.includes("See All Customer Reviews")) {
       await btn.click();
       try {
-        // Tunggu review-item muncul (lebih spesifik)
         await page.waitForSelector(".review-item", { timeout: 15000 });
       } catch {
         console.warn("Elemen .review-item tidak muncul.");
@@ -23,8 +22,7 @@ export async function scrapeBestBuyReviews(page, url) {
     }
   }
 
-  // Tunggu sedikit lagi agar konten benar-benar termuat
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(2000); // Biarkan konten termuat penuh
 
   const content = await page.content();
   const $ = cheerio.load(content);
@@ -35,7 +33,10 @@ export async function scrapeBestBuyReviews(page, url) {
     console.warn("Tidak ada review-item yang ditemukan.");
   }
 
-  reviewItems.slice(0, 2).each((_, el) => {
+  let count = 0;
+  reviewItems.each((_, el) => {
+    if (count >= 2) return false; // Stop looping setelah 2 review
+
     const rating = $(el).find(".c-ratings-reviews p").text().trim();
     const reviewTitle = $(el).find("h4.review-title").text().trim();
     const reviewContent = $(el).find("p.pre-white-space").text().trim();
@@ -48,6 +49,8 @@ export async function scrapeBestBuyReviews(page, url) {
       review_content: reviewContent,
       recommended,
     });
+
+    count++;
   });
 
   console.log("✅ Reviews scraped:", reviews);
