@@ -18,7 +18,7 @@ export default async function scrapeBestBuyProduct(url) {
 
     await page.goto(url, {
       waitUntil: "networkidle2",
-      timeout: 20000,
+      timeout: 60000,
     });
 
     await page.waitForSelector("#large-customer-price", { timeout: 10000 });
