@@ -10,7 +10,7 @@ app.use(cors());
 const port = process.env.PORT || 3000;
 
 app.post("/scrape/details", async (req, res) => {
-  const { url } = req.body;
+  const { url } = req.query;
 
   if (!url) {
     return res.status(400).send("URL parameter is required");
@@ -38,7 +38,7 @@ app.post("/scrape/details", async (req, res) => {
 });
 
 app.post("/scrape/reviews", async (req, res) => {
-  const { url } = req.body;
+  const { url } = req.query;
 
   if (!url) {
     return res.status(400).send("URL parameter is required");
