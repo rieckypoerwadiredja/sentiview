@@ -18,7 +18,7 @@ export default async function scrapeBestBuyProduct(url) {
 
     await page.goto(url, {
       waitUntil: "networkidle2",
-      timeout: 0,
+      timeout: 20000,
     });
 
     await page.waitForSelector("#large-customer-price", { timeout: 10000 });
@@ -61,7 +61,7 @@ export default async function scrapeBestBuyProduct(url) {
     const $$ = cheerio.load(reviewContent);
 
     const reviews = [];
-    const reviewItems = $$(".review-item");
+    const reviewItems = $$(".review-item").slice(0, 10);
     const startTotalReview = Date.now();
 
     reviewItems.each((i, el) => {
