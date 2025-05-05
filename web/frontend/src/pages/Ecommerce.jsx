@@ -13,22 +13,23 @@ function Ecommerce() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!url) {
-      alert("Please enter a URL!");
+    if (!url.trim()) {
+      alert("Please enter a valid URL.");
       return;
     }
 
-    const link = url + "&intl=nosplash";
-    setIsLoading(true); // Start loading
+    const formattedUrl = url + "&intl=nosplash";
+    setIsLoading(true);
+
     try {
       const response = await fetch(
-        "https://api-sentiview.vercel.app/analyze-bestbuy",
+        "https://api-sentiview-scraper.vercel.app/scrape-bestbuy",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ url: link }),
+          body: JSON.stringify({ url: formattedUrl }),
         }
       );
 
@@ -40,43 +41,54 @@ function Ecommerce() {
       setResponseData(data);
       setError(null);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Something went wrong");
       setResponseData(null);
     } finally {
-      setIsLoading(false); // Stop loading
+      setIsLoading(false);
     }
   };
 
   return (
-    <div>
-      <h1>Ecommerce Product Scraper</h1>
+    <div style={{ fontFamily: "Arial, sans-serif", padding: "20px" }}>
+      <h1>E-commerce Product Scraper</h1>
+
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="url">Product URL:</label>
-          <input
-            type="text"
-            id="url"
-            value={url}
-            onChange={handleUrlChange}
-            placeholder="Enter product URL"
-            style={{ width: "300px", padding: "10px", marginBottom: "10px" }}
-          />
-        </div>
+        <label htmlFor="url">Product URL:</label>
+        <br />
+        <input
+          id="url"
+          type="text"
+          value={url}
+          onChange={handleUrlChange}
+          placeholder="Enter product URL"
+          style={{
+            width: "100%",
+            maxWidth: "400px",
+            padding: "10px",
+            marginTop: "5px",
+            marginBottom: "15px",
+          }}
+        />
+        <br />
         <button
           type="submit"
           disabled={isLoading}
-          style={{ padding: "10px 15px" }}
+          style={{
+            padding: "10px 20px",
+            cursor: isLoading ? "not-allowed" : "pointer",
+          }}
         >
           {isLoading ? "Loading..." : "Scrape Product"}
         </button>
       </form>
 
-      {isLoading && <p style={{ color: "blue" }}>Loading...</p>}
-
+      {isLoading && (
+        <p style={{ color: "blue" }}>Fetching data, please wait...</p>
+      )}
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
 
       {responseData && (
-        <div>
+        <div style={{ marginTop: "30px" }}>
           <h2>Product Details</h2>
           <p>
             <strong>Title:</strong> {responseData.product_details.title}
@@ -88,16 +100,20 @@ function Ecommerce() {
             <strong>Description:</strong>{" "}
             {responseData.product_details.description}
           </p>
+
           <div>
             <strong>Images:</strong>
-            <ul>
+            <ul
+              style={{
+                display: "flex",
+                gap: "10px",
+                listStyle: "none",
+                padding: 0,
+              }}
+            >
               {responseData.product_details.images.map((image, index) => (
                 <li key={index}>
-                  <img
-                    src={image}
-                    alt={`Product Image ${index + 1}`}
-                    width="100"
-                  />
+                  <img src={image} alt={`Product ${index + 1}`} width="100" />
                 </li>
               ))}
             </ul>
@@ -106,7 +122,14 @@ function Ecommerce() {
           <h3>Reviews</h3>
           {responseData.reviews.length > 0 ? (
             responseData.reviews.map((review, index) => (
-              <div key={index}>
+              <div
+                key={index}
+                style={{
+                  marginBottom: "15px",
+                  borderBottom: "1px solid #ccc",
+                  paddingBottom: "10px",
+                }}
+              >
                 <p>
                   <strong>Rating:</strong> {review.rating}
                 </p>
@@ -121,13 +144,12 @@ function Ecommerce() {
                   {review.recommended === "true" ? "Yes" : "No"}
                 </p>
                 <p>
-                  <strong>Sentiemnt:</strong> {review.sentiment}
+                  <strong>Sentiment:</strong> {review.sentiment}
                 </p>
-                <hr />
               </div>
             ))
           ) : (
-            <p>No reviews available</p>
+            <p>No reviews available.</p>
           )}
         </div>
       )}
