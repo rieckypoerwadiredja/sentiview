@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 const port = process.env.PORT || 3000;
 
-app.get("/scrape/details", async (req, res) => {
+app.post("/scrape/details", async (req, res) => {
   const { url } = req.body;
 
   if (!url) {
@@ -37,7 +37,7 @@ app.get("/scrape/details", async (req, res) => {
   }
 });
 
-app.get("/scrape/reviews", async (req, res) => {
+app.post("/scrape/reviews", async (req, res) => {
   const { url } = req.body;
 
   if (!url) {
