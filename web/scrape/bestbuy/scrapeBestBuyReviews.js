@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+
 export async function scrapeBestBuyReviews(page, url) {
   await page.goto(url, {
     waitUntil: "domcontentloaded",
@@ -12,35 +13,43 @@ export async function scrapeBestBuyReviews(page, url) {
     if (text.includes("See All Customer Reviews")) {
       await btn.click();
       try {
-        await page.waitForSelector(".ugc-recommendation", { timeout: 10000 });
+        // Tunggu review-item muncul (lebih spesifik)
+        await page.waitForSelector(".review-item", { timeout: 15000 });
       } catch {
-        console.warn("Elemen .ugc-recommendation tidak muncul.");
+        console.warn("Elemen .review-item tidak muncul.");
         return [];
       }
       break;
     }
   }
 
+  // Tunggu sedikit lagi agar konten benar-benar termuat
+  await page.waitForTimeout(2000);
+
   const content = await page.content();
   const $ = cheerio.load(content);
   const reviews = [];
 
-  $(".review-item")
-    .slice(0, 2)
-    .each((_, el) => {
-      const rating = $(el).find(".c-ratings-reviews p").text().trim();
-      const reviewTitle = $(el).find("h4.review-title").text().trim();
-      const reviewContent = $(el).find("p.pre-white-space").text().trim();
-      const recommended =
-        $(el).find(".ugc-recommendation").length > 0 ? "true" : "false";
+  const reviewItems = $(".review-item");
+  if (reviewItems.length === 0) {
+    console.warn("Tidak ada review-item yang ditemukan.");
+  }
 
-      reviews.push({
-        rating,
-        review_title: reviewTitle,
-        review_content: reviewContent,
-        recommended,
-      });
+  reviewItems.slice(0, 2).each((_, el) => {
+    const rating = $(el).find(".c-ratings-reviews p").text().trim();
+    const reviewTitle = $(el).find("h4.review-title").text().trim();
+    const reviewContent = $(el).find("p.pre-white-space").text().trim();
+    const recommended =
+      $(el).find(".ugc-recommendation").length > 0 ? "true" : "false";
+
+    reviews.push({
+      rating,
+      review_title: reviewTitle,
+      review_content: reviewContent,
+      recommended,
     });
-  console.log(reviews);
+  });
+
+  console.log("✅ Reviews scraped:", reviews);
   return reviews;
 }
