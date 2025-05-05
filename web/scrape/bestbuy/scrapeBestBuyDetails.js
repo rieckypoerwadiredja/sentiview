@@ -1,7 +1,7 @@
 export async function scrapeBestBuyDetails(page, url) {
   await page.goto(url, {
     waitUntil: "domcontentloaded",
-    timeout: 40000, // Lebih longgar
+    timeout: 60000, // Lebih longgar
   });
 
   await page.waitForSelector("#large-customer-price", { timeout: 10000 });
