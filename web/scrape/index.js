@@ -12,6 +12,10 @@ app.use(express.json());
 const port = process.env.PORT || 3000;
 
 app.post("/scrape/details", async (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
   const { url } = req.body;
 
   if (!url) {
@@ -40,6 +44,10 @@ app.post("/scrape/details", async (req, res) => {
 });
 
 app.post("/scrape/reviews", async (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
   const { url } = req.body;
 
   if (!url) {
