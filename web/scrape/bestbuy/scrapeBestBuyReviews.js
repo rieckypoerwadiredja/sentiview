@@ -4,7 +4,7 @@ export async function scrapeBestBuyReviews(page, url) {
   // Jika input adalah product URL, ubah jadi review URL
   const reviewUrl = url.includes("/reviews/")
     ? url
-    : url.replace(".p?", "/reviews?").replace("/site/", "/site/reviews/");
+    : url.replace(/\.p\?skuId=\d+/, "").replace("/site/", "/site/reviews/");
 
   await page.goto(reviewUrl, {
     waitUntil: "domcontentloaded",
