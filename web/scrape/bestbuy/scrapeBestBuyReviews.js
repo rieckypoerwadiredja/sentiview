@@ -1,28 +1,17 @@
 import * as cheerio from "cheerio";
 
 export async function scrapeBestBuyReviews(page, url) {
-  await page.goto(url, {
+  // Jika input adalah product URL, ubah jadi review URL
+  const reviewUrl = url.includes("/reviews/")
+    ? url
+    : url.replace(".p?", "/reviews?").replace("/site/", "/site/reviews/");
+
+  await page.goto(reviewUrl, {
     waitUntil: "domcontentloaded",
     timeout: 60000,
   });
 
-  const buttons = await page.$$("button");
-
-  for (const btn of buttons) {
-    const text = await page.evaluate((el) => el.textContent, btn);
-    if (text.includes("See All Customer Reviews")) {
-      await btn.click();
-      try {
-        await page.waitForSelector(".review-item", { timeout: 15000 });
-      } catch {
-        console.warn("Elemen .review-item tidak muncul.");
-        return [];
-      }
-      break;
-    }
-  }
-
-  await page.waitForTimeout(2000); // Biarkan konten termuat penuh
+  await page.waitForTimeout(1500); // Tunggu sedikit agar isi halaman stabil
 
   const content = await page.content();
   const $ = cheerio.load(content);
@@ -33,10 +22,7 @@ export async function scrapeBestBuyReviews(page, url) {
     console.warn("Tidak ada review-item yang ditemukan.");
   }
 
-  let count = 0;
-  reviewItems.each((_, el) => {
-    if (count >= 2) return false; // Stop looping setelah 2 review
-
+  reviewItems.slice(0, 2).each((_, el) => {
     const rating = $(el).find(".c-ratings-reviews p").text().trim();
     const reviewTitle = $(el).find("h4.review-title").text().trim();
     const reviewContent = $(el).find("p.pre-white-space").text().trim();
@@ -49,8 +35,6 @@ export async function scrapeBestBuyReviews(page, url) {
       review_content: reviewContent,
       recommended,
     });
-
-    count++;
   });
 
   console.log("✅ Reviews scraped:", reviews);
