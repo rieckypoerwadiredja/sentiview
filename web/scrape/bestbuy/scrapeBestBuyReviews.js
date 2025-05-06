@@ -19,7 +19,7 @@ export async function scrapeBestBuyReviews(page, url) {
   );
 
   // Tunggu halaman termuat
-  await page.waitForSelector(".review-item", { timeout: 10000 });
+  await page.waitForSelector(".review-item", { timeout: 60000 });
 
   const content = await page.content();
   const $ = cheerio.load(content);
