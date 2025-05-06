@@ -14,7 +14,9 @@ export async function scrapeBestBuyReviews(page, url) {
   await page.evaluate(() => {
     window.scrollBy(0, window.innerHeight);
   });
-  await page.waitForTimeout(2000);
+  await page.evaluate(
+    () => new Promise((resolve) => setTimeout(resolve, 2000))
+  );
 
   // Tunggu halaman termuat
   await page.waitForSelector(".review-item", { timeout: 10000 });
