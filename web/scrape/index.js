@@ -6,7 +6,14 @@ import { scrapeBestBuyReviews } from "./bestbuy/scrapeBestBuyReviews.js";
 import cors from "cors";
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://sentiview.vercel.app", // ganti sesuai domain frontend kamu
+    methods: ["POST", "GET", "OPTIONS"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
+
 app.use(express.json());
 
 const port = process.env.PORT || 3000;
