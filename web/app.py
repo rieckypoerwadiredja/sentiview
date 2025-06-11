@@ -9,7 +9,8 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords  # Pastikan ini diimpor setelah nltk
 from nltk.stem import WordNetLemmatizer
 from scrape.bestbuy.scrape_bestbuy import scrape_bestbuy_product
-
+import random
+from responses import negative_responses,positive_responses
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 
@@ -19,7 +20,7 @@ os.makedirs(nltk_data_path, exist_ok=True)
 nltk.data.path.append(nltk_data_path)
 
 # Download NLTK resources
-for resource in ["punkt", "stopwords", "wordnet"]:
+for resource in ["punkt", "stopwords", "wordnet","punkt_tab"]:
     try:
         nltk.data.find(f"corpora/{resource}")  # Cek jika sudah ada
     except LookupError:
@@ -60,7 +61,17 @@ def predict():
     features = text_to_features(tokens)
     prediction = model.classify(features)
 
-    return jsonify({"sentiment": prediction})
+    if prediction == "negative":
+        chosen_response = random.choice(negative_responses).replace("{text}", raw_text)
+    else:
+        chosen_response = random.choice(positive_responses).replace("{text}", raw_text)
+
+    id = [random.randint(10_000_000, 99_999_999) for _ in range(1)]
+    return jsonify({
+        "id": id,
+        "sentiment": prediction,
+        "response": chosen_response
+    })
 
 @app.route("/analyze-bestbuy", methods=["POST"])
 def scrape():

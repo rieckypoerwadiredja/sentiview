@@ -33,8 +33,10 @@ function SentenceAnalyze() {
   };
 
   return (
-    <div className="App">
-      <h1>Sentiment Analysis</h1>
+    <div className="App flex flex-col justify-center items-center">
+      <section>
+        <h1>Sentiment Analysis</h1>
+      </section>
 
       <textarea
         placeholder="Type your review here..."

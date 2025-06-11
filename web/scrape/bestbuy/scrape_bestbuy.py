@@ -130,4 +130,3 @@ def scrape_bestbuy_product(url):
 # url += "&intl=nosplash" # Skip Region Select
 # data = scrape_bestbuy_product(url)
 # print(data)
-

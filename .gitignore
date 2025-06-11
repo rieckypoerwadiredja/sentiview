@@ -4,6 +4,6 @@
 /data/train.csv
 /data/predict-id.csv
 /data/archive
-
+/dekstop
 .venv/
 PLAN

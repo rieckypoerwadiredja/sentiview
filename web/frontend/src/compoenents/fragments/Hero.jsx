@@ -2,19 +2,20 @@ import React from "react";
 import { Check } from "lucide-react";
 import FlexHorizontal from "../elements/FlexHorizontal";
 import { featuredOn } from "../../data/data";
+import TitlePage from "../elements/text/TitlePage";
+import DescPage from "../elements/text/DescPage";
 
 function Hero() {
   return (
     <section className="py-16 text-center bg-[#FFF9F3]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="mx-auto max-w-4xl text-5xl font-bold leading-tight text-[#030521]">
-          Build Analysis with <br /> the Power of AI
-        </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-          It takes seconds to uncover deep product insights with
+        <TitlePage line1="Build Analysis with" line2="the Power of AI" />
+
+        <DescPage
+          text="It takes seconds to uncover deep product insights with
           Sentiview—AI-powered sentiment analysis for smarter business
-          decisions.
-        </p>
+          decisions."
+        />
 
         {/* Features */}
         <div className="mx-auto mt-10 flex flex-wrap justify-center gap-x-8 gap-y-4">

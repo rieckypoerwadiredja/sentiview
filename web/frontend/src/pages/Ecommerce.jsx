@@ -18,44 +18,18 @@ const BestBuyScraper = () => {
     setIsLoading(true);
 
     try {
-      // Fetch product details
-      const detailsResponse = await fetch(
-        "https://api-sentiview-scraper.vercel.app/scrape/details",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: formattedUrl }),
-        }
-      );
-
-      if (!detailsResponse.ok) {
-        throw new Error("Failed to fetch product details");
-      }
-
-      const productDetails = await detailsResponse.json();
-
-      // Fetch product reviews
-      const reviewsResponse = await fetch(
-        "https://api-sentiview-scraper.vercel.app/scrape/reviews",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: formattedUrl }),
-        }
-      );
-
-      if (!reviewsResponse.ok) {
-        throw new Error("Failed to fetch product reviews");
-      }
-
-      const reviews = await reviewsResponse.json();
-
-      // Gabungkan hasilnya
-      setResponseData({
-        ...productDetails,
-        reviews,
+      const response = await fetch("http://127.0.0.1:5000/analyze-bestbuy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: formattedUrl }),
       });
 
+      if (!response.ok) {
+        throw new Error("Failed to fetch product data");
+      }
+
+      const data = await response.json();
+      setResponseData(data);
       setError(null);
     } catch (err) {
       setError(err.message || "Something went wrong");
@@ -100,7 +74,7 @@ const BestBuyScraper = () => {
             <strong>Total Reviews:</strong> {responseData.totalReviews}
           </p>
 
-          {responseData.images && responseData.images.length > 0 && (
+          {responseData.images?.length > 0 && (
             <>
               <h4>Images:</h4>
               <ul style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
@@ -114,7 +88,7 @@ const BestBuyScraper = () => {
           )}
 
           <h3>Reviews</h3>
-          {responseData.reviews && responseData.reviews.length > 0 ? (
+          {responseData.reviews?.length > 0 ? (
             responseData.reviews.map((review, index) => (
               <div
                 key={index}
@@ -136,6 +110,9 @@ const BestBuyScraper = () => {
                 <p>
                   <strong>Recommended:</strong>{" "}
                   {review.recommended === "true" ? "Yes" : "No"}
+                </p>
+                <p>
+                  <strong>Sentiment:</strong> {review.sentiment}
                 </p>
               </div>
             ))
