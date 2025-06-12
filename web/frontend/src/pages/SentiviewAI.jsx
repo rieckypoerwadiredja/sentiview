@@ -182,7 +182,21 @@ export default function SentiviewAI() {
                   key={convercation.id || index}
                   className="max-w-4xl w-full mx-auto bg-white p-4 rounded-xl shadow-lg mb-4"
                 >
-                  <p>{convercation.text}</p>
+                  {convercation.response.type === "product" ? (
+                    <>
+                      <h3 className="font-bold">
+                        {convercation.response.title}
+                      </h3>
+                      <p>{convercation.response.price}</p>
+                      <div className="flex">
+                        {convercation.response.images.map((image) => (
+                          <img src={image} alt="" />
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <p>{convercation.response}</p>
+                  )}
                   <div className="flex justify-center mt-4">
                     <button
                       onClick={() => regenerateReseponse(convercation.id)}

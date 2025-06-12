@@ -32,10 +32,10 @@ export const getConversation = () => {
         {
           id: "87654321",
           role: "ai",
-          text: "Customers mostly say the battery lasts 8 hours.",
+          response: "Customers mostly say the battery lasts 8 hours.",
         },
       ],
-      Youtube: [
+      Sentiment: [
         {
           id: "12332122",
           role: "user",
@@ -44,7 +44,7 @@ export const getConversation = () => {
         {
           id: "12344321",
           role: "ai",
-          text: "Mostly positive, many praise the HD clarity.",
+          response: "Mostly positive, many praise the HD clarity.",
         },
       ],
     };
@@ -76,11 +76,11 @@ export const addUserMessage = (platform, text) => {
   setConversation(data);
 };
 // add AI msg
-export const addAiMessage = (platform, id, text) => {
+export const addAiMessage = (platform, id, response) => {
   const data = getConversation();
   if (!data[platform]) data[platform] = [];
 
-  data[platform].push({ id: id, role: "ai", text });
+  data[platform].push({ id: id, role: "ai", response });
   setConversation(data);
 };
 
@@ -109,6 +109,43 @@ export const conversationPredict = async (text) => {
     console.log(result);
     return result;
   } catch (error) {
+    console.error("Error fetching prediction:", error);
+    return { error: error.message };
+  }
+};
+
+export const conversationBestBuyAnalyze = async (text) => {
+  try {
+    const match = text.match(/(https?:\/\/)?(www\.)?bestbuy\.com\/[^\s,]+/i);
+
+    if (!match) {
+      console.log("❌ URL not found!");
+      throw new Error("URL not found!");
+    }
+
+    const url = match[0].startsWith("http") ? match[0] : "https://" + match[0];
+
+    console.log("✅ Link ditemukan:", url);
+
+    const response = await fetch(import.meta.env.VITE_BEST_BUY_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url }),
+    });
+
+    console.log(import.meta.env.VITE_BEST_BUY_API_URL);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.log(import.meta.env.VITE_BEST_BUY_API_URL);
     console.error("Error fetching prediction:", error);
     return { error: error.message };
   }

@@ -4,6 +4,7 @@ import { Send } from "lucide-react";
 import {
   addAiMessage,
   addUserMessage,
+  conversationBestBuyAnalyze,
   conversationPredict,
 } from "../../utils/convercation";
 
@@ -21,20 +22,53 @@ function InputAI({
     setUserInput("");
     statusUserSendMsg(true);
     loadingAiResponse(true);
-    const data = await conversationPredict(text);
 
-    // Jika ingin tampilkan responsenya ke UI:
-    if (data && data.sentiment) {
-      addAiMessage(platform, data.id, data.response);
+    try {
+      const data =
+        platform === "BestBuy"
+          ? await conversationBestBuyAnalyze(text)
+          : await conversationPredict(text);
+
+      if (platform === "Sentiment")
+        if (data && data.sentiment) {
+          addAiMessage(platform, data.id, data.response);
+        } else if (data && data.id) {
+          addAiMessage(platform, data.id, data.error || "Terjadi kesalahan.");
+        } else {
+          addAiMessage(platform, "unknown", "Respons tidak valid.");
+        }
+
+      if (platform === "BestBuy")
+        if (data && data.response && data.response.product_data) {
+          const product = data.response.product_data;
+          const title = product.title || "No title";
+          const price = product.price || "No price";
+          const images = product.images || "No images";
+
+          const message = {
+            type: "product",
+            title: title,
+            price: price,
+            images: images,
+          };
+          addAiMessage(platform, data.id, message);
+        } else if (data && data.error) {
+          addAiMessage(platform, data.id, data.error);
+        } else {
+          addAiMessage(platform, "unknown", "Respons tidak valid.");
+        }
+
       statusAiSendMsg(true);
-    } else {
-      addAiMessage(platform, data.id, data.error);
+    } catch (err) {
+      console.error("Error submit:", err);
+      addAiMessage(platform, "unknown", "Gagal mengambil respons. Coba lagi.");
       statusAiSendMsg(true);
     }
 
     loadingAiResponse(false);
     statusUserSendMsg(false);
   };
+
   return (
     <div className="p-4 bg-white border-t">
       <div className="max-w-4xl mx-auto">

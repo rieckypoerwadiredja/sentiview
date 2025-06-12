@@ -74,31 +74,19 @@ def predict():
     })
 
 @app.route("/analyze-bestbuy", methods=["POST"])
-def scrape():
+def analyze_bestbuy():
     data = request.get_json()
     if "url" not in data:
         return jsonify({"error": "No url field provided"}), 400
+
     url = data["url"]
-    print(url)
-    try:
-        product_data = scrape_bestbuy_product(url)
+    product_data = scrape_bestbuy_product(url)
 
-        # Proses analisis sentimen untuk setiap review
-        for review in product_data.get("reviews", []):
-            content = review.get("review_title", "")
-            if content:
-                tokens = clean_text(content)
-                features = text_to_features(tokens)
-                sentiment = model.classify(features)
-                review["sentiment"] = sentiment
-            else:
-                review["sentiment"] = "unknown"
+    if "error" in product_data:
+        return jsonify(product_data), 500
 
-        return jsonify(product_data)
+    return jsonify(product_data)
 
-    except Exception as e:
-        logging.error(f"Gagal scraping: {e}")
-        return jsonify({"error": str(e)}), 500
 
 
 
@@ -106,4 +94,4 @@ def scrape():
 import os
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port,debug=True)
