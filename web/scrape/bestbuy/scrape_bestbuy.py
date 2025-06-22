@@ -107,102 +107,111 @@ def scrape_bestbuy_product_info(url):
             'details': str(e)
         }
 
+from urllib.parse import urlencode, urlparse, parse_qs, urlunparse
+
 def scrape_bestbut_review(url):
     print(url)
     start = time.time()
     print("🚀 Start scrape:", url)
 
-    # Configure Selenium WebDriver
+    # Setup WebDriver
     chrome_options = Options()
     chrome_options.page_load_strategy = 'eager'
-    chrome_options.add_argument('--headless')  # Run in headless mode
+    chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
-
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-    driver.get(url)
-    
-    try:
-        WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, 'span.c-reviews.ugc-review-container'))
-        )
 
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
-        review_count_element = soup.select_one('span.c-reviews.ugc-review-container')
-        
-        # TODO Get totla review
-        if review_count_element:
-            review_text = review_count_element.text.strip()
-            print("🔍 Raw review text:", review_text)
+    page = 1
+    total_reviews = None
+    all_reviews = []
 
-            # Ekstrak to number from "(181 customer reviews)"
-            match = re.search(r"\(([\d,]+)\s+customer\s+reviews?\)", review_text, re.IGNORECASE)
-            print(match)
-            total_reviews = int(match.group(1).replace(",", "")) if match else 0
-        else:
-            total_reviews = 0
-            
-        # TODO Get reviews
-        review_items = soup.select("li.review-item")
-        reviews = []
+    while True:
+        # Modifikasi URL agar page-nya berubah
+        parsed_url = urlparse(url)
+        query = parse_qs(parsed_url.query)
+        query["page"] = [str(page)]
+        new_query = urlencode(query, doseq=True)
+        page_url = urlunparse(parsed_url._replace(query=new_query))
 
-        for item in review_items:
-            try:
-                # Nama penulis
-                author_tag = item.select_one("div.ugc-author strong")
-                author = author_tag.get_text(strip=True) if author_tag else "Anonymous"
+        print(f"🔄 Scraping page {page}: {page_url}")
+        driver.get(page_url)
 
-                # Rating (ambil dari <p class="visually-hidden">Rated 5 out of 5 stars</p>)
-                rating_text = item.select_one("p.visually-hidden")
-                rating = 0
-                if rating_text and "Rated" in rating_text.text:
-                    rating = int(rating_text.text.strip().split(" ")[1])
+        try:
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, 'span.c-reviews.ugc-review-container'))
+            )
 
-                # Judul review
-                title_tag = item.select_one("h4.review-title")
-                title = title_tag.get_text(strip=True) if title_tag else "No Title"
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
 
-                # Isi review (review body)
-                body_tag = item.select_one("div.ugc-review-body p.pre-white-space")
-                if body_tag:
-                    body = body_tag.get_text(strip=True)
+            # Ambil total review hanya di halaman pertama
+            if total_reviews is None:
+                review_count_element = soup.select_one('span.c-reviews.ugc-review-container')
+                if review_count_element:
+                    review_text = review_count_element.text.strip()
+                    match = re.search(r"\(([\d,]+)\s+customer\s+reviews?\)", review_text, re.IGNORECASE)
+                    total_reviews = int(match.group(1).replace(",", "")) if match else 0
+                    print(f"📊 Total review terdeteksi: {total_reviews}")
                 else:
-                    body = "No body"
+                    total_reviews = 0
 
-                # Rekomendasi (jika ada teks: "recommend this to a friend")
-                recommend = "recommend this to a friend" in item.get_text(strip=True).lower()
+            # Scrape review item
+            review_items = soup.select("li.review-item")
+            if not review_items:
+                print("⛔ Tidak ada review ditemukan di halaman ini. Menghentikan scraping.")
+                break
 
-                # Gambar (jika ada carousel)
-                images = []
-                img_tags = item.select("ul.gallery-preview img")
-                if img_tags:
-                    images = [img['src'] for img in img_tags if img.get('src')]
+            for item in review_items:
+                try:
+                    author = item.select_one("div.ugc-author strong")
+                    author = author.get_text(strip=True) if author else "Anonymous"
 
-                reviews.append({
-                    "author": author,
-                    "rating": rating,
-                    "title": title,
-                    "body": body,
-                    "recommendation": recommend,
-                    "images": images
-                })
-                print(reviews)
-            except Exception as e:
-                print("⚠️ Error in parsing review:", e)
-        
-        
-        driver.quit()
-        end = time.time()
-        print(f"✅ Selesai scrape dalam {end - start} detik")
-        return {
-            "total_reviews": total_reviews,
-            "reviews": reviews
-        }
-    except Exception as e:
-        print(e)
-        return {
-            'error': 'Scraping product review failed',
-            'details': str(e)
-        }
+                    rating_text = item.select_one("p.visually-hidden")
+                    rating = int(rating_text.text.strip().split(" ")[1]) if rating_text and "Rated" in rating_text.text else 0
+
+                    title_tag = item.select_one("h4.review-title")
+                    title = title_tag.get_text(strip=True) if title_tag else "No Title"
+
+                    body_tag = item.select_one("div.ugc-review-body p.pre-white-space")
+                    body = body_tag.get_text(strip=True) if body_tag else "No body"
+
+                    recommend = "recommend this to a friend" in item.get_text(strip=True).lower()
+
+                    images = []
+                    img_tags = item.select("ul.gallery-preview img")
+                    if img_tags:
+                        images = [img['src'] for img in img_tags if img.get('src')]
+
+                    all_reviews.append({
+                        "author": author,
+                        "rating": rating,
+                        "title": title,
+                        "body": body,
+                        "recommendation": recommend,
+                        "images": images
+                    })
+                except Exception as e:
+                    print("⚠️ Error parsing review:", e)
+
+            print(f"✅ Total review terkumpul: {len(all_reviews)}")
+
+            if len(all_reviews) >= total_reviews:
+                print("✅ Semua review telah diambil.")
+                break
+
+            page += 1
+            time.sleep(1)  # jeda kecil biar ramah server
+
+        except Exception as e:
+            print("⚠️ Gagal memproses halaman:", e)
+            break
+
+    driver.quit()
+    end = time.time()
+    print(f"🏁 Selesai scraping dalam {end - start:.2f} detik")
+    return {
+        "total_reviews": total_reviews,
+        "reviews": all_reviews
+    }
 
 
