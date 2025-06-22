@@ -9,4 +9,5 @@ export default defineConfig({
       process.env.VITE_PREDICT_API_URL
     ),
   },
+  assetsInclude: ["**/*.lottie"],
 });

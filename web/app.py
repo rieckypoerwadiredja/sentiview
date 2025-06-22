@@ -8,9 +8,12 @@ import re
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords  # Pastikan ini diimpor setelah nltk
 from nltk.stem import WordNetLemmatizer
-from scrape.bestbuy.scrape_bestbuy import scrape_bestbuy_product
+from scrape.bestbuy.scrape_bestbuy import scrape_bestbuy_product_info,scrape_bestbut_review
 import random
 from responses import negative_responses,positive_responses
+from langchain_ollama import ChatOllama
+import json
+
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 
@@ -73,21 +76,83 @@ def predict():
         "response": chosen_response
     })
 
-@app.route("/analyze-bestbuy", methods=["POST"])
-def analyze_bestbuy():
+@app.route("/product-info-bestbuy", methods=["POST"])
+def product_info_bestbuy():
     data = request.get_json()
     if "url" not in data:
         return jsonify({"error": "No url field provided"}), 400
 
     url = data["url"]
-    product_data = scrape_bestbuy_product(url)
-
+    product_data = scrape_bestbuy_product_info(url)
+    
     if "error" in product_data:
         return jsonify(product_data), 500
 
     return jsonify(product_data)
 
+@app.route("/product-review-bestbuy", methods=["POST"])
+def product_review_bestbuy():
+    data = request.get_json()
+    if "url" not in data:
+        return jsonify({"error": "No url field provided"}), 400
 
+    url = data["url"]
+    review_data = scrape_bestbut_review(url)
+    
+    if "error" in review_data:
+        return jsonify(review_data), 500
+
+    return jsonify(review_data)
+
+
+
+@app.route("/ai", methods=["POST"])
+def OllamaAI():
+    # Helper untuk ekstrak konten JSON dari blok markdown
+    def extract_json_block(text):
+        match = re.search(r"```json\s*(.*?)\s*```", text, re.DOTALL)
+        return match.group(1).strip() if match else text.strip()
+
+    model = ChatOllama(model="gemma3:4b")
+    result = model.invoke(input="""
+Make 3 sample data in JSON like this:
+
+{
+    "id": [
+        35941231
+    ],
+    "response": {
+        "product_data": {
+            "description": "Not fetched yet",
+            "images": [
+                "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6df2b890-c512-45e6-a91b-b5f1e0249f6d.jpg",
+                "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/93f0b0e1-e04b-4239-907b-e565f07a2a6a.jpg"
+            ],
+            "price": "$329.00",
+            "title": "HP - 14\" Chromebook - Intel Celeron - 4GB Memory - 64GB eMMC - Modern Grey"
+        },
+        "reviews": "Not fetched yet"
+    }
+}
+
+response must json!
+""")
+
+    print(result)
+
+    response_string = extract_json_block(result.content)
+
+    try:
+        response_json = json.loads(response_string)
+        print("✅ berhasil parsing JSON:")
+        print(response_json)
+        print(response_json[0]['response']['product_data']['title'])
+        
+        # print(title)
+        return jsonify(response_json)
+    except json.JSONDecodeError as e:
+        print("⚠️ Gagal parsing JSON:", e)
+        return {"error": "Response is not valid JSON", "raw": response_string}, 500
 
 
 # Jalankan server

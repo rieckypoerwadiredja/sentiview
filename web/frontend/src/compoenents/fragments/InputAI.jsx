@@ -4,8 +4,10 @@ import { Send } from "lucide-react";
 import {
   addAiMessage,
   addUserMessage,
-  conversationBestBuyAnalyze,
+  conversationBestBuyProductInfo,
+  conversationBestBuyProductReview,
   conversationPredict,
+  updateAiMessage,
 } from "../../utils/convercation";
 
 function InputAI({
@@ -13,12 +15,13 @@ function InputAI({
   statusUserSendMsg,
   statusAiSendMsg,
   loadingAiResponse,
+  setLoadingId,
 }) {
   const [userInput, setUserInput] = useState("");
 
   const onSubmit = async (e, text) => {
     e.preventDefault();
-    addUserMessage(platform, text);
+    addUserMessage(platform, text); // ? store user message to local storage
     setUserInput("");
     statusUserSendMsg(true);
     loadingAiResponse(true);
@@ -26,7 +29,7 @@ function InputAI({
     try {
       const data =
         platform === "BestBuy"
-          ? await conversationBestBuyAnalyze(text)
+          ? await conversationBestBuyProductInfo(text)
           : await conversationPredict(text);
 
       if (platform === "Sentiment")
@@ -43,28 +46,55 @@ function InputAI({
           const product = data.response.product_data;
           const title = product.title || "No title";
           const price = product.price || "No price";
+          const product_url = product.product_url || "No product link";
+          const review_url = product.review_url || "No review link";
           const images = product.images || "No images";
 
           const message = {
             type: "product",
             title: title,
             price: price,
+            product_url: product_url,
+            review_url: review_url,
             images: images,
           };
+          setLoadingId(data.id);
           addAiMessage(platform, data.id, message);
+          statusAiSendMsg(true); // ? true krn kirim messege title, price, image, link
+
+          // TODO Scraping review
+          try {
+            console.log(product_url);
+            const review_scrape_data = await conversationBestBuyProductReview(
+              review_url
+            );
+            const total_review =
+              review_scrape_data.total_reviews || "No total review";
+            const reviews = review_scrape_data.reviews || "No reviews";
+
+            const message = {
+              total_review: total_review,
+              reviews: reviews,
+            };
+            updateAiMessage(platform, data.id, message);
+
+            console.log(review_scrape_data);
+          } catch (error) {
+            console.log("conversationBestBuyProductReview", error);
+          }
         } else if (data && data.error) {
           addAiMessage(platform, data.id, data.error);
         } else {
           addAiMessage(platform, "unknown", "Respons tidak valid.");
         }
 
-      statusAiSendMsg(true);
+      statusAiSendMsg(true); // ? true krn kirim messege batch 2 total review + review
     } catch (err) {
       console.error("Error submit:", err);
       addAiMessage(platform, "unknown", "Gagal mengambil respons. Coba lagi.");
       statusAiSendMsg(true);
     }
-
+    setLoadingId("");
     loadingAiResponse(false);
     statusUserSendMsg(false);
   };

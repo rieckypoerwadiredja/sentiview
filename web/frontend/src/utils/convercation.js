@@ -91,6 +91,26 @@ export const deleteAllConversation = () => {
   }
 };
 
+// update ai messege
+export const updateAiMessage = (platform, id, newData) => {
+  const data = getConversation();
+  if (!data[platform]) return;
+
+  const index = data[platform].findIndex(
+    (msg) => msg.id === id && msg.role === "ai"
+  );
+  if (index !== -1) {
+    data[platform][index] = {
+      ...data[platform][index],
+      response: {
+        ...data[platform][index].response,
+        ...newData, // merge new data (e.g., review)
+      },
+    };
+    setConversation(data);
+  }
+};
+
 export const conversationPredict = async (text) => {
   try {
     const response = await fetch(import.meta.env.VITE_PREDICT_API_URL, {
@@ -114,7 +134,7 @@ export const conversationPredict = async (text) => {
   }
 };
 
-export const conversationBestBuyAnalyze = async (text) => {
+export const conversationBestBuyProductInfo = async (text) => {
   try {
     const match = text.match(/(https?:\/\/)?(www\.)?bestbuy\.com\/[^\s,]+/i);
 
@@ -146,7 +166,46 @@ export const conversationBestBuyAnalyze = async (text) => {
     return result;
   } catch (error) {
     console.log(import.meta.env.VITE_BEST_BUY_API_URL);
-    console.error("Error fetching prediction:", error);
+    console.error("Error fetching product info:", error);
+    return { error: error.message };
+  }
+};
+
+export const conversationBestBuyProductReview = async (url) => {
+  try {
+    const match = url.match(/(https?:\/\/)?(www\.)?bestbuy\.com\/[^\s,]+/i);
+
+    if (!match) {
+      console.log("❌ URL not found!");
+      console.log(url);
+      throw new Error("URL not found!");
+    }
+
+    const url_ = match[0].startsWith("http") ? match[0] : "https://" + match[0];
+
+    console.log(
+      "✅ Link review found:",
+      import.meta.env.VITE_BEST_BUY_REVIEW_API_URL
+    );
+
+    const response = await fetch(import.meta.env.VITE_BEST_BUY_REVIEW_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url: url_ }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.log(import.meta.env.VITE_BEST_BUY_API_URL);
+    console.error("Error fetching product review:", error);
     return { error: error.message };
   }
 };

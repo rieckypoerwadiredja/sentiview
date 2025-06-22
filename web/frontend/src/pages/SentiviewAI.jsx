@@ -11,6 +11,10 @@ import InputAI from "../compoenents/fragments/InputAI";
 import { deleteAllConversation, getConversation } from "../utils/convercation";
 import { useChatScroll } from "../utils/autoScroll";
 import { GeneralOpening } from "../compoenents/fragments/OpeningMessage";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+// animation
+import analyzingAnimation from "../assets/animation/analyzing.lottie";
+import scanningAimation from "../assets/animation/Scanning.lottie";
 
 export default function SentiviewAI() {
   const [fullSideBar, setFullSideBar] = useState(true);
@@ -20,7 +24,27 @@ export default function SentiviewAI() {
   const [userSendMsg, setUserSendMsg] = useState(false);
   const [aiSendMsg, setAiSendMsg] = useState(false);
   const [loadingAiResponse, setLoadingAiResponse] = useState(false);
+  const [loadingId, setLoadingId] = useState("");
   const ref = useChatScroll(conversationActive);
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const animations = [
+    {
+      text: "Scanning",
+      anim: scanningAimation,
+    },
+    {
+      text: "Analyzing",
+      anim: analyzingAnimation,
+    },
+  ];
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % animations.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const Conversations = getConversation();
@@ -187,16 +211,43 @@ export default function SentiviewAI() {
                       <h3 className="font-bold">
                         {convercation.response.title}
                       </h3>
+                      <p>{convercation.id}</p>
                       <p>{convercation.response.price}</p>
+                      <p>{convercation.response.product_url}</p>
+                      <p>{convercation.response.review_url}</p>
+                      <p>{convercation.response.result}</p>
                       <div className="flex">
                         {convercation.response.images.map((image) => (
                           <img src={image} alt="" />
                         ))}
                       </div>
+                      {convercation.response.total_review !== undefined && (
+                        <p className="mt-2">
+                          Total Review: {convercation.response.total_review}
+                        </p>
+                      )}
+                      {convercation.response.reviews !== undefined &&
+                        convercation.response.reviews.map((review) => (
+                          <>
+                            <p className="font-bold">{review.author}</p>
+                            <p>{review.title}</p>
+                            <p>{review.body}</p>
+                            <p>Ratting: {review.rating}</p>
+                            <div className="flex">
+                              {review.images.map((img) => (
+                                <img src={img} />
+                              ))}
+                            </div>
+                            <p>{review.recommendation && "rekomen"}</p>
+                          </>
+                        ))}
                     </>
                   ) : (
                     <p>{convercation.response}</p>
                   )}
+
+                  {loadingAiResponse ||
+                    (loadingId === convercation.id && <p>Still Scanning...</p>)}
                   <div className="flex justify-center mt-4">
                     <button
                       onClick={() => regenerateReseponse(convercation.id)}
@@ -224,14 +275,16 @@ export default function SentiviewAI() {
           })}
 
           {loadingAiResponse && (
-            <div className="max-w-4xl w-full mx-auto bg-white p-4 rounded-xl shadow-lg mb-4">
-              <p>Loading...</p>
-              <div className="flex justify-center mt-4">
-                <button className="flex items-center gap-2 text-[#3a30ba] border border-[#3a30ba] py-2 px-3 rounded-4xl">
-                  <RefreshCw size={16} />
-                  <span>Regenerate response</span>
-                </button>
+            <div className="h-[500px] w-full flex flex-col items-center justify-center">
+              <div className="w-64 h-64 flex items-center justify-center">
+                <DotLottieReact src={animations[currentIndex].anim} autoplay />
               </div>
+              <p className="text-lg text-center -mt-12 text-gray-400 font-semibold flex items-center gap-1">
+                {animations[currentIndex].text}
+                <span className="dot-pulse ml-1">
+                  <span>.</span> <span>.</span> <span>.</span>
+                </span>
+              </p>
             </div>
           )}
         </div>
@@ -241,6 +294,7 @@ export default function SentiviewAI() {
             statusUserSendMsg={setUserSendMsg}
             statusAiSendMsg={setAiSendMsg}
             loadingAiResponse={setLoadingAiResponse}
+            setLoadingId={setLoadingId}
           />
         ) : (
           <div className="p-4 bg-white border-t">
