@@ -1,0 +1,101 @@
+{
+  "id": 24861917,
+  "role": "ai",
+  "response": {
+    "type": "product",
+    "title": "bella PRO - 4-qt. TriZone Touchscreen Air Fryer with Dual Flex Basket - Stainless Steel",
+    "price": "$39.99",
+    "product_url": "https://www.bestbuy.com/site/bella-pro-4-qt-trizone-touchscreen-air-fryer-with-dual-flex-basket-stainless-steel/6583879.p?skuId=6583879&intl=nosplash",
+    "review_url": "https://www.bestbuy.com/site/reviews/bella-pro-4-qt-trizone-touchscreen-air-fryer-with-dual-flex-basket-stainless-steel/6583879",
+    "images": [
+      "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/9b097944-fdf1-43bf-a7aa-35421f78caa5.jpg;maxHeight=128;maxWidth=64?format=webp",
+      "https://pisces.bbystatic.com/prescaled/180/320/image2/BestBuy_US/images/videos/duohpcfkjc6x1hzjq3nr.jpg;maxHeight=128;maxWidth=64?format=webp",
+      "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/9b097944-fdf1-43bf-a7aa-35421f78caa5.jpg;maxHeight=128;maxWidth=64?format=webp"
+    ],
+    "total_review": 333,
+    "reviews": [
+      {
+        "author": "FelipeM",
+        "body": "The Bella Pro 4-Qt. TriZone Touchscreen Air Fryer with Dual Flex Basket in Stainless Steel is a fantastic addition to any kitchen. Combining modern design with versatile functionality, this air fryer is perfect for those looking to enjoy healthier meals without sacrificing flavor or convenience.\n\nThe standout feature is the Dual Flex Basket, which allows you to cook two different dishes simultaneously. Whether you’re preparing crispy fries and chicken wings or roasted veggies and fish, the divided basket makes multitasking in the kitchen a breeze. Alternatively, you can remove the divider to use the full 4-quart capacity for larger portions.\n\nThe intuitive touchscreen interface is user-friendly, with preset cooking modes that simplify meal preparation. The stainless steel finish gives it a sleek and durable look, blending seamlessly with most kitchen decor.\n\nPerformance-wise, the TriZone Air Fryer delivers consistent results. The powerful heating system ensures even cooking, while the adjustable temperature and timer provide precise control. Cleanup is also a breeze, thanks to the non-stick, dishwasher-safe basket.\n\nWhile the 4-quart capacity is ideal for small to medium households, it might not be sufficient for larger families or gatherings. Additionally, the touchscreen can be sensitive to smudges, but this is a minor trade-off for its overall convenience.\n\nOverall, the Bella Pro 4-Qt. TriZone Air Fryer is a great choice for anyone seeking a versatile and stylish appliance to elevate their cooking game. Its dual-basket functionality and efficient performance make it a standout option in its class.",
+        "images": [
+          "https://pisces.bbystatic.com/image2/BestBuy_US/ugc/photos/thumbnail/dc2d138eb5d9c5ea94283d0749978e18.jpg;maxHeight=140;maxWidth=140?format=webp"
+        ],
+        "rating": 5,
+        "recommendation": true,
+        "title": "Compact, Versatile, and Efficient"
+      },
+
+      {
+        "author": "StanMDENVERCOLORADO",
+        "body": "I PURCHASED A INSIGNIA 70\" FLAT SCREEN NOVEMBER 1, 2024. WAS HAPPY, ORDERED ANOTHER NOVEMBER 21, 2024.\nSECOND TV IS DEFECTIVE, DID I GET ANY HELP, NOT A CHANCE. TOTAL FOR BOTH $1,266.59. I'M OUT $511.39. GREAT JOB BEST BUY.  WHERE DO I GO FROM HERE?",
+        "images": [],
+        "rating": 1,
+        "recommendation": false,
+        "title": "BEST BUY IS THE WORST AT CUSTOMER SERVICE EVER."
+      }
+    ],
+    "analysis": {
+      "sentiment_summary": {
+        "negative": 15,
+        "neutral": 24,
+        "positive": 294
+      },
+      "top_cons": [
+        ["baskets divided", 1],
+        ["divided huge", 1],
+        ["huge cook", 1],
+        ["cook decent", 1],
+        ["decent size", 1],
+        ["size meal", 1],
+        ["meal problem", 1],
+        ["extremely disappointed", 1],
+        ["disappointed lack", 1],
+        ["lack support", 1]
+      ],
+      "top_pros": [
+        ["air fryer", 98],
+        ["easy clean", 27],
+        ["works great", 23],
+        ["easy use", 21],
+        ["love air", 16],
+        ["bella pro", 15],
+        ["air fryers", 11],
+        ["great product", 11],
+        ["best buy", 10],
+        ["perfect size", 9]
+      ],
+      "word_cloud_data": [
+        ["air", 220],
+        ["fryer", 194],
+        ["use", 108],
+        ["easy", 107],
+        ["great", 106],
+        ["one", 103],
+        ["love", 95],
+        ["cook", 86],
+        ["cooking", 80],
+        ["time", 70],
+        ["good", 68],
+        ["basket", 61],
+        ["two", 56],
+        ["food", 56],
+        ["like", 54],
+        ["dual", 53],
+        ["bella", 52],
+        ["works", 52],
+        ["divider", 49],
+        ["different", 46],
+        ["small", 45],
+        ["clean", 45],
+        ["size", 41],
+        ["well", 41],
+        ["using", 37],
+        ["price", 36],
+        ["would", 35],
+        ["perfect", 34],
+        ["really", 33],
+        ["much", 32]
+      ]
+    }
+  }
+}

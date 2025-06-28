@@ -4,9 +4,11 @@ import { Send } from "lucide-react";
 import {
   addAiMessage,
   addUserMessage,
+  conversationBestBuyAnalyze,
   conversationBestBuyProductInfo,
   conversationBestBuyProductReview,
   conversationPredict,
+  getConversationById,
   updateAiMessage,
 } from "../../utils/convercation";
 
@@ -79,8 +81,24 @@ function InputAI({
             updateAiMessage(platform, data.id, message);
 
             console.log(review_scrape_data);
+
+            // TODO Analyzed Product
+            try {
+              const dataById = getConversationById("BestBuy", data.id);
+              console.log(dataById);
+              const analyze_scrape_data = await conversationBestBuyAnalyze(
+                dataById
+              );
+
+              updateAiMessage(platform, data.id, {
+                analysis: analyze_scrape_data.response.analysis,
+              });
+              console.log(analyze_scrape_data.response.analysis);
+            } catch (error) {
+              console.log("❌ conversationBestBuyProductAnalyze Error:", error);
+            }
           } catch (error) {
-            console.log("conversationBestBuyProductReview", error);
+            console.log("❌ conversationBestBuyProductReview Error:", error);
           }
         } else if (data && data.error) {
           addAiMessage(platform, data.id, data.error);

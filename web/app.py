@@ -8,12 +8,12 @@ import re
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords  # Pastikan ini diimpor setelah nltk
 from nltk.stem import WordNetLemmatizer
-from scrape.bestbuy.scrape_bestbuy import scrape_bestbuy_product_info,scrape_bestbut_review
+from scrape.bestbuy.scrape_bestbuy import scrape_bestbuy_product_info,scrape_bestbut_review,analyze_product_data
 import random
 from responses import negative_responses,positive_responses
 from langchain_ollama import ChatOllama
 import json
-
+import time
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 
@@ -21,15 +21,21 @@ logging.basicConfig(level=logging.INFO)
 nltk_data_path = "/tmp/nltk_data"
 os.makedirs(nltk_data_path, exist_ok=True)
 nltk.data.path.append(nltk_data_path)
-
+nltk_resources = {
+    "tokenizers/punkt": "punkt",
+    "taggers/averaged_perceptron_tagger": "averaged_perceptron_tagger",
+     "taggers/averaged_perceptron_tagger_eng": "averaged_perceptron_tagger_eng",
+    "sentiment/vader_lexicon": "vader_lexicon",
+    "corpora/stopwords": "stopwords",
+    "corpora/wordnet": "wordnet",
+}
 # Download NLTK resources
-for resource in ["punkt", "stopwords", "wordnet","punkt_tab"]:
+for path, resource in nltk_resources.items():
     try:
-        nltk.data.find(f"corpora/{resource}")  # Cek jika sudah ada
+        nltk.data.find(path)
     except LookupError:
-        logging.info(f"{resource} tidak ditemukan, mengunduh...")
+        logging.info(f"Resource '{resource}' tidak ditemukan, mengunduh...")
         nltk.download(resource, download_dir=nltk_data_path)
-
 # Flask Setup
 app = Flask(__name__)
 CORS(app)
@@ -54,6 +60,8 @@ def text_to_features(tokens):
 
 @app.route("/predict", methods=["POST"])
 def predict():
+    start_time = time.time()
+    
     data = request.get_json()
 
     if "text" not in data:
@@ -70,6 +78,12 @@ def predict():
         chosen_response = random.choice(positive_responses).replace("{text}", raw_text)
 
     id = [random.randint(10_000_000, 99_999_999) for _ in range(1)]
+    
+    end_time = time.time()
+
+    elapsed_time = end_time - start_time
+    print(f"Execution time of prediction: {elapsed_time:.2f} s")
+    
     return jsonify({
         "id": id,
         "sentiment": prediction,
@@ -78,12 +92,19 @@ def predict():
 
 @app.route("/product-info-bestbuy", methods=["POST"])
 def product_info_bestbuy():
+    start_time = time.time()
+    
     data = request.get_json()
     if "url" not in data:
         return jsonify({"error": "No url field provided"}), 400
 
     url = data["url"]
     product_data = scrape_bestbuy_product_info(url)
+    
+    end_time = time.time()
+
+    elapsed_time = end_time - start_time
+    print(f"Execution time of pridct info: {elapsed_time:.2f} s")
     
     if "error" in product_data:
         return jsonify(product_data), 500
@@ -92,6 +113,8 @@ def product_info_bestbuy():
 
 @app.route("/product-review-bestbuy", methods=["POST"])
 def product_review_bestbuy():
+    start_time = time.time()
+    
     data = request.get_json()
     if "url" not in data:
         return jsonify({"error": "No url field provided"}), 400
@@ -101,8 +124,33 @@ def product_review_bestbuy():
     
     if "error" in review_data:
         return jsonify(review_data), 500
+    end_time = time.time()
 
+    elapsed_time = end_time - start_time
+    print(f"Execution time of product review: {elapsed_time:.2f} detik")
     return jsonify(review_data)
+
+
+@app.route("/analyze-bestbuy", methods=["POST"])
+def analyze_bestbuy():
+    start_time = time.time()
+    
+    data = request.get_json()
+    if "product_data" not in data:
+        return jsonify({"error": "No product data field provided"}), 400
+
+    product_data = data["product_data"]
+    analyzed_data  = analyze_product_data(product_data)
+    
+    end_time = time.time()
+
+    elapsed_time = end_time - start_time
+    print(f"Execution time of analyze: {elapsed_time:.2f} s")
+    
+    if "error" in analyzed_data :
+        return jsonify(analyzed_data ), 500
+
+    return jsonify(analyzed_data )
 
 
 
@@ -113,6 +161,10 @@ def OllamaAI():
         match = re.search(r"```json\s*(.*?)\s*```", text, re.DOTALL)
         return match.group(1).strip() if match else text.strip()
 
+    data = request.get_json()
+    if "type" not in data:
+        return jsonify({"error": "No data field provided"}), 400
+    
     model = ChatOllama(model="gemma3:4b")
     result = model.invoke(input="""
 Make 3 sample data in JSON like this:

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import {
   ArrowRight,
   RefreshCw,
@@ -10,17 +10,23 @@ import { Link } from "react-router-dom";
 import InputAI from "../compoenents/fragments/InputAI";
 import { deleteAllConversation, getConversation } from "../utils/convercation";
 import { useChatScroll } from "../utils/autoScroll";
-import { GeneralOpening } from "../compoenents/fragments/OpeningMessage";
+import {
+  BestbuyOpening,
+  GeneralOpening,
+} from "../compoenents/fragments/OpeningMessage";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 // animation
 import analyzingAnimation from "../assets/animation/analyzing.lottie";
 import scanningAimation from "../assets/animation/Scanning.lottie";
+import Dashboard from "../compoenents/fragments/Dashboard";
+import { roomReducer, VALID_ROOMS } from "../utils/roomReducer";
 
 export default function SentiviewAI() {
-  const [fullSideBar, setFullSideBar] = useState(true);
+  const [fullSideBar, setFullSideBar] = useState(false);
   const [conversations, setConversations] = useState({});
   const [conversationActive, setConversationsActive] = useState([]);
-  const [roomActive, setRoomActive] = useState("");
+  const [roomActive, dispatchRoom] = useReducer(roomReducer, "");
+
   const [userSendMsg, setUserSendMsg] = useState(false);
   const [aiSendMsg, setAiSendMsg] = useState(false);
   const [loadingAiResponse, setLoadingAiResponse] = useState(false);
@@ -56,9 +62,14 @@ export default function SentiviewAI() {
   }, [userSendMsg, aiSendMsg]);
 
   const getConversationByRoom = (platform) => {
+    if (!VALID_ROOMS.includes(platform)) {
+      console.error(`Invalid platform: ${platform}`);
+      return; // Stop here
+    }
+
     const conversationsRoom = conversations[platform] || [];
     setConversationsActive(conversationsRoom);
-    setRoomActive(platform);
+    dispatchRoom({ type: "SET_ROOM", payload: platform });
   };
 
   const regenerateReseponse = (idAiResponse) => {
@@ -119,7 +130,7 @@ export default function SentiviewAI() {
                   } cursor-pointer`}
                 >
                   <div className="w-5 h-5 flex items-center justify-center">
-                    <span className="text-gray-500">1</span>
+                    <span className="text-gray-500">{conversation[0]}</span>
                   </div>
                   {fullSideBar && (
                     <span className="text-sm text-gray-700">
@@ -168,7 +179,7 @@ export default function SentiviewAI() {
         {/* Toggle Button */}
         <div className="absolute top-4 -right-4 z-10">
           <button
-            className="w-8 h-8 rounded-full bg-[#3a30ba] flex items-center justify-center text-white"
+            className="w-8 h-8 cursor-pointer rounded-full bg-[#3a30ba] flex items-center justify-center text-white"
             onClick={() => setFullSideBar(!fullSideBar)}
           >
             {fullSideBar ? (
@@ -187,8 +198,15 @@ export default function SentiviewAI() {
           ref={ref}
           className="overflow-auto p-8 w-full flex flex-col gap-y-5"
         >
-          <div className="max-w-4xl mx-auto bg-white p-4 rounded-xl shadow-lg">
-            <GeneralOpening />
+          <div className="max-w-7xl mx-auto bg-white p-4 rounded-xl shadow-lg">
+            {(() => {
+              if (roomActive === "BestBuy") {
+                return <BestbuyOpening />;
+              } else {
+                return <GeneralOpening />;
+              }
+            })()}
+
             <div className="flex justify-center mb-6">
               <button className="flex items-center gap-2 text-[#3a30ba] border border-[#3a30ba] py-2 px-3 rounded-4xl">
                 <RefreshCw size={16} />
@@ -204,44 +222,10 @@ export default function SentiviewAI() {
               return (
                 <div
                   key={convercation.id || index}
-                  className="max-w-4xl w-full mx-auto bg-white p-4 rounded-xl shadow-lg mb-4"
+                  className="max-w-7xl w-full mx-auto bg-white p-4 rounded-xl shadow-lg mb-4"
                 >
                   {convercation.response.type === "product" ? (
-                    <>
-                      <h3 className="font-bold">
-                        {convercation.response.title}
-                      </h3>
-                      <p>{convercation.id}</p>
-                      <p>{convercation.response.price}</p>
-                      <p>{convercation.response.product_url}</p>
-                      <p>{convercation.response.review_url}</p>
-                      <p>{convercation.response.result}</p>
-                      <div className="flex">
-                        {convercation.response.images.map((image) => (
-                          <img src={image} alt="" />
-                        ))}
-                      </div>
-                      {convercation.response.total_review !== undefined && (
-                        <p className="mt-2">
-                          Total Review: {convercation.response.total_review}
-                        </p>
-                      )}
-                      {convercation.response.reviews !== undefined &&
-                        convercation.response.reviews.map((review) => (
-                          <>
-                            <p className="font-bold">{review.author}</p>
-                            <p>{review.title}</p>
-                            <p>{review.body}</p>
-                            <p>Ratting: {review.rating}</p>
-                            <div className="flex">
-                              {review.images.map((img) => (
-                                <img src={img} />
-                              ))}
-                            </div>
-                            <p>{review.recommendation && "rekomen"}</p>
-                          </>
-                        ))}
-                    </>
+                    <Dashboard data={convercation} />
                   ) : (
                     <p>{convercation.response}</p>
                   )}

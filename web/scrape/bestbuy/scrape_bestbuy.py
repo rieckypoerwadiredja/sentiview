@@ -12,6 +12,14 @@ import logging
 from flask import Flask, request, jsonify
 import random
 import re
+import string
+from nltk.sentiment import SentimentIntensityAnalyzer
+from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.corpus import stopwords
+from collections import Counter
+import nltk
+from datetime import datetime
+from rake_nltk import Rake
 
 def scrape_bestbuy_product_info(url):
     import time
@@ -55,11 +63,14 @@ def scrape_bestbuy_product_info(url):
         price = price_element.text.strip() if price_element else "Not Found"
 
         # Ambil Gambar
-        image_elements = soup.find_all("img", class_="p-100")
+        container = soup.find("div", class_="no-scroll")
+        image_elements = container.select("img") if container else []
+
         image_urls = [
             img.get("src") for img in image_elements
             if img.get("src") and img.get("src").startswith("https://")
         ]
+
 
         id = random.randint(10_000_000, 99_999_999)
         
@@ -175,20 +186,77 @@ def scrape_bestbut_review(url):
                     body_tag = item.select_one("div.ugc-review-body p.pre-white-space")
                     body = body_tag.get_text(strip=True) if body_tag else "No body"
 
-                    recommend = "recommend this to a friend" in item.get_text(strip=True).lower()
+                    recommend = False  
+                    recommendation_tag = item.select_one("div.ugc-recommendation")
+                    if recommendation_tag:
+                        text = recommendation_tag.get_text(" ", strip=True).lower()
+
+                        if "no, i would not recommend" in text:
+                            recommend = False
+                        elif "i would recommend" in text:
+                            recommend = True
 
                     images = []
                     img_tags = item.select("ul.gallery-preview img")
                     if img_tags:
                         images = [img['src'] for img in img_tags if img.get('src')]
 
+                    post = item.select_one("div.posted-date-ownership")
+                    posted_info = {}
+                    if post:
+                        time_tag = post.find("time", class_="submission-date")
+                        if time_tag and time_tag.get("title"):
+                            post_date = datetime.strptime(time_tag["title"], "%b %d, %Y %I:%M %p")
+                            posted_info["posted"] = {
+                                "label": post_date.strftime("%B"),
+                                "month": post_date.month
+                            }
+                        else:
+                            posted_info["posted"] = None
+
+                        # Check usage duration
+                        match = re.search(r"Owned for\s+(.+?)\s+when reviewed", post.get_text())
+                        if match:
+                            duration = match.group(1).lower()
+                            # Normalisasi angka
+                            num = re.search(r"(\d+)", duration)
+                            num = int(num.group(1)) if num else 1  # default ke 1
+
+                            if "less than" in duration or "week" in duration:
+                                dur_label = "less than 1 month"
+                            elif "month" in duration:
+                                if num <= 6:
+                                    dur_label = "1 - 6 months"
+                                elif num <= 12:
+                                    dur_label = "6 - 12 months"
+                                else:
+                                    dur_label = "more than a year"
+                            elif "year" in duration:
+                                if num == 1:
+                                    dur_label = "more than a year"
+                                else:
+                                    dur_label = "more than a year"
+                            else:
+                                dur_label = "unknown"
+
+                            posted_info["used_duration"] = {
+                                "value": True,
+                                "duration": dur_label
+                            }
+                        else:
+                            posted_info["used_duration"] = {
+                                "value": False
+                            }
+        
                     all_reviews.append({
                         "author": author,
                         "rating": rating,
                         "title": title,
                         "body": body,
                         "recommendation": recommend,
-                        "images": images
+                        "images": images,
+                        'review_info': posted_info
+
                     })
                 except Exception as e:
                     print("⚠️ Error parsing review:", e)
@@ -214,4 +282,117 @@ def scrape_bestbut_review(url):
         "reviews": all_reviews
     }
 
+from nltk import bigrams
 
+import nltk
+from nltk.sentiment import SentimentIntensityAnalyzer
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk import pos_tag
+from rake_nltk import Rake
+from collections import Counter
+import string
+import re
+
+# Helper untuk membersihkan dan menyaring frasa
+def clean_phrase(phrase):
+    return re.sub(r"[^\w\s\-]", "", phrase).strip()
+
+def is_valid_phrase(phrase):
+    words = word_tokenize(phrase)
+    if len(words) < 2 and len(phrase) <= 8:
+        return False
+    tags = pos_tag(words)
+    has_noun = any(tag.startswith("NN") for _, tag in tags)
+    return has_noun
+
+def analyze_product_data(product_data):
+        # Tokenizer
+    try:
+        nltk.data.find("tokenizers/punkt")
+    except:
+        nltk.download("punkt")
+
+    # POS Tagger
+    try:
+        nltk.data.find("taggers/averaged_perceptron_tagger")
+    except:
+        nltk.download("averaged_perceptron_tagger")
+
+    # Stopwords
+    try:
+        stop_words = set(stopwords.words("english"))
+    except:
+        nltk.download("stopwords")
+        stop_words = set(stopwords.words("english"))
+
+    # VADER
+    try:
+        sia = SentimentIntensityAnalyzer()
+    except:
+        nltk.download("vader_lexicon")
+        sia = SentimentIntensityAnalyzer()
+
+
+    # Inisialisasi RAKE
+    rake = Rake(stopwords=stop_words)
+    punctuation_table = str.maketrans("", "", string.punctuation)
+
+    sentiment_counts = {"positive": 0, "neutral": 0, "negative": 0}
+    word_freq = Counter()
+    pros = Counter()
+    cons = Counter()
+
+    for review in product_data["response"].get("reviews", []):
+        title = review.get("title", "")
+        body = review.get("body", "")
+        full_text = f"{title}. {body}".strip()
+
+        # Sentiment analysis
+        sentiment_score = sia.polarity_scores(full_text)
+        compound = sentiment_score["compound"]
+
+        if compound >= 0.2:
+            sentiment = "positive"
+            sentiment_counts["positive"] += 1
+        elif compound <= -0.2:
+            sentiment = "negative"
+            sentiment_counts["negative"] += 1
+        else:
+            sentiment = "neutral"
+            sentiment_counts["neutral"] += 1
+
+        review["sentiment"] = sentiment
+
+        # Word Frequency
+        words = word_tokenize(full_text.lower().translate(punctuation_table))
+        words = [w for w in words if w not in stop_words and w.isalpha()]
+        word_freq.update(words)
+
+        # RAKE keyword extraction
+        rake.extract_keywords_from_text(full_text)
+        raw_keywords = rake.get_ranked_phrases()
+        filtered_keywords = [clean_phrase(k) for k in raw_keywords if is_valid_phrase(k)]
+
+        if sentiment == "positive":
+            pros.update(filtered_keywords)
+        elif sentiment == "negative":
+            cons.update(filtered_keywords)
+
+    # Remove overlap
+    overlapping = set(pros) & set(cons)
+    for phrase in overlapping:
+        if pros[phrase] > cons[phrase]:
+            del cons[phrase]
+        else:
+            del pros[phrase]
+
+    # Tambahkan ke struktur data hasil
+    product_data["response"]["analysis"] = {
+        "sentiment_summary": sentiment_counts,
+        "top_pros": pros.most_common(10),
+        "top_cons": cons.most_common(10),
+        "word_cloud_data": word_freq.most_common(30),
+    }
+
+    return product_data
