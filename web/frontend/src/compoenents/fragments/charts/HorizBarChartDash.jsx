@@ -20,13 +20,6 @@ import {
 } from "../../../utils/analyze.Dashboard";
 
 function HorizBarChartDash({ data, title, content }) {
-  const values = data.map((item) => item.data);
-  const minValue = Math.min(...values);
-  const maxValue = Math.max(...values);
-  const tickCount = 5; // atau 5
-
-  const tickSize = Math.ceil((maxValue - minValue) / tickCount);
-
   const [insights, setInsights] = useState([
     {
       sentiment: "neutral",
@@ -45,7 +38,6 @@ function HorizBarChartDash({ data, title, content }) {
     }
   }, [data, content]);
 
-  console.log(tickSize);
   return (
     <>
       <TitleChart>{title}</TitleChart>
@@ -68,10 +60,7 @@ function HorizBarChartDash({ data, title, content }) {
             />
           }
           xAxis={
-            <LinearXAxis
-              type="value"
-              tickSeries={<LinearXAxisTickSeries tickSize={tickSize} />}
-            />
+            <LinearXAxis type="value" tickSeries={<LinearXAxisTickSeries />} />
           }
           series={
             <BarSeries

@@ -58,6 +58,7 @@ export const getConversation = () => {
 };
 
 export const getConversationById = (platform, id) => {
+  // Platform like BestBuy, Sentiment, ect
   const data = getConversation();
   if (!data[platform]) return null;
 
@@ -244,110 +245,6 @@ export const conversationBestBuyAnalyze = async (productData) => {
   }
 };
 
-export function exportBestBuyToExcel() {
-  const { BestBuy } = getConversation();
-
-  if (!BestBuy || BestBuy.length === 0) {
-    alert("No BestBuy data found.");
-    return;
-  }
-
-  const products = [];
-  const reviews = [];
-  const analysis = [];
-
-  BestBuy.forEach((entry) => {
-    if (entry.role === "ai" && entry.response?.type === "product") {
-      const product = entry.response;
-      const productId = entry.id;
-
-      // Sheet: Products
-      products.push({
-        product_id: productId,
-        title: product.title,
-        price: product.price,
-        product_url: product.product_url,
-        review_url: product.review_url,
-        total_reviews: product.total_review,
-      });
-
-      // Sheet: Reviews
-      if (Array.isArray(product.reviews)) {
-        product.reviews.forEach((review, i) => {
-          reviews.push({
-            product_id: productId,
-            reviewer: review.author,
-            title: review.title,
-            body: review.body,
-            rating: review.rating,
-            recommendation: review.recommendation ? "Yes" : "No",
-            index: i + 1,
-          });
-        });
-      }
-
-      // Sheet: Analysis
-      if (product.analysis) {
-        const { sentiment_summary, top_pros, top_cons, word_cloud_data } =
-          product.analysis;
-
-        // Flatten pros/cons/wordcloud
-        top_pros.forEach(([phrase, count]) => {
-          analysis.push({
-            product_id: productId,
-            type: "Pro",
-            phrase,
-            count,
-          });
-        });
-
-        top_cons.forEach(([phrase, count]) => {
-          analysis.push({
-            product_id: productId,
-            type: "Con",
-            phrase,
-            count,
-          });
-        });
-
-        word_cloud_data.forEach(([phrase, count]) => {
-          analysis.push({
-            product_id: productId,
-            type: "Word",
-            phrase,
-            count,
-          });
-        });
-
-        // Add sentiment summary as well
-        ["positive", "neutral", "negative"].forEach((sent) => {
-          analysis.push({
-            product_id: productId,
-            type: "Sentiment",
-            phrase: sent,
-            count: sentiment_summary[sent],
-          });
-        });
-      }
-    }
-  });
-
-  // Convert to sheets
-  const wb = XLSX.utils.book_new();
-
-  const wsProducts = XLSX.utils.json_to_sheet(products);
-  XLSX.utils.book_append_sheet(wb, wsProducts, "Products");
-
-  const wsReviews = XLSX.utils.json_to_sheet(reviews);
-  XLSX.utils.book_append_sheet(wb, wsReviews, "Reviews");
-
-  const wsAnalysis = XLSX.utils.json_to_sheet(analysis);
-  XLSX.utils.book_append_sheet(wb, wsAnalysis, "Analysis");
-
-  // Download
-  XLSX.writeFile(wb, "BestBuyData.xlsx");
-}
-
 export function exportProductToExcel(productId) {
   const allData = getConversationByRoom("BestBuy");
   const productData = allData.find(
@@ -372,7 +269,6 @@ export function exportProductToExcel(productId) {
 
   const currentYear = new Date().getFullYear();
 
-  // Sheet 1: Product Info
   const productInfoSheet = [
     {
       product_id: productId,
@@ -384,7 +280,6 @@ export function exportProductToExcel(productId) {
     },
   ];
 
-  // Sheet 2: Reviews
   const reviewSheet = reviews.map((r, idx) => ({
     no: idx + 1,
     author: r.author,
@@ -398,7 +293,6 @@ export function exportProductToExcel(productId) {
     usage_duration: r.review_info?.used_duration?.duration || "Unknown",
   }));
 
-  // Sheet 3: Sentiment
   const sentimentSheet = [];
   if (analysis.sentiment_summary) {
     const { positive, neutral, negative } = analysis.sentiment_summary;
@@ -409,31 +303,33 @@ export function exportProductToExcel(productId) {
     );
   }
 
-  // Sheet 4: Top Pros
-  const topProsSheet = [];
-  if (analysis.top_pros?.length) {
-    analysis.top_pros.forEach(([phrase, count]) => {
-      topProsSheet.push({
-        phrase,
-        count,
-      });
-    });
-  }
+  const combinedWordsSheet = [];
+  (analysis.top_pros || []).forEach(([phrase, count]) => {
+    combinedWordsSheet.push({ phrase, count, type: "Top Pro" });
+  });
+  (analysis.top_cons || []).forEach(([phrase, count]) => {
+    combinedWordsSheet.push({ phrase, count, type: "Top Con" });
+  });
 
-  // Sheet 5: Top Cons
-  const topConsSheet = [];
-  if (analysis.top_cons?.length) {
-    analysis.top_cons.forEach(([phrase, count]) => {
-      topConsSheet.push({
-        phrase,
-        count,
-      });
+  const insightSheet = [];
+  const insightTypes = [
+    { list: analysis.duration_insights, type: "Duration" },
+    { list: analysis.rating_insights, type: "Rating" },
+    { list: analysis.trend_insights, type: "Trend" },
+  ];
+  insightTypes.forEach(({ list, type }) => {
+    (list || []).forEach(({ message, sentiment }) => {
+      insightSheet.push({ type, message, sentiment });
     });
-  }
+  });
 
-  // Generate workbook
+  const distributionSheets = {
+    Duration: analysis.duration_distribution || [],
+    Rating: analysis.rating_distribution || [],
+    Trend: analysis.trend_distribution || [],
+  };
+
   const wb = XLSX.utils.book_new();
-
   XLSX.utils.book_append_sheet(
     wb,
     XLSX.utils.json_to_sheet(productInfoSheet),
@@ -451,15 +347,192 @@ export function exportProductToExcel(productId) {
   );
   XLSX.utils.book_append_sheet(
     wb,
-    XLSX.utils.json_to_sheet(topProsSheet),
-    "Top Pros"
+    XLSX.utils.json_to_sheet(combinedWordsSheet),
+    "Top Words"
   );
   XLSX.utils.book_append_sheet(
     wb,
-    XLSX.utils.json_to_sheet(topConsSheet),
-    "Top Cons"
+    XLSX.utils.json_to_sheet(insightSheet),
+    "Insights"
   );
 
-  // Save file
+  Object.entries(distributionSheets).forEach(([name, dist]) => {
+    const sheetData = dist.map(({ key, data }) => ({ key, data }));
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet(sheetData),
+      `${name} Dist`
+    );
+  });
+
   XLSX.writeFile(wb, `Product-${productId}.xlsx`);
 }
+
+// --- Updated: Export ALL BestBuy Products to Excel with ID relationships ---
+export function exportBestBuyToExcel() {
+  const { BestBuy } = getConversation();
+
+  if (!BestBuy || BestBuy.length === 0) {
+    alert("No BestBuy data found.");
+    return;
+  }
+
+  const products = [];
+  const reviews = [];
+  const analysis = [];
+  const insights = [];
+  const distributions = [];
+
+  const currentYear = new Date().getFullYear();
+
+  BestBuy.forEach((entry) => {
+    if (entry.role === "ai" && entry.response?.type === "product") {
+      const product = entry.response;
+      const productId = entry.id;
+
+      products.push({
+        product_id: productId,
+        title: product.title,
+        price: product.price,
+        product_url: product.product_url,
+        review_url: product.review_url,
+        total_reviews: product.total_review,
+      });
+
+      (product.reviews || []).forEach((r, i) => {
+        reviews.push({
+          product_id: productId,
+          reviewer: r.author,
+          title: r.title,
+          body: r.body,
+          rating: r.rating,
+          recommendation: r.recommendation ? "Yes" : "No",
+          posted_month: r.review_info?.posted?.label
+            ? `${r.review_info.posted.label} ${currentYear}`
+            : "Unknown",
+          usage_duration: r.review_info?.used_duration?.duration || "Unknown",
+          index: i + 1,
+        });
+      });
+
+      const { sentiment_summary, top_pros, top_cons, word_cloud_data } =
+        product.analysis || {};
+
+      (top_pros || []).forEach(([phrase, count]) => {
+        analysis.push({
+          product_id: productId,
+          type: "Top Pro",
+          phrase,
+          count,
+        });
+      });
+      (top_cons || []).forEach(([phrase, count]) => {
+        analysis.push({
+          product_id: productId,
+          type: "Top Con",
+          phrase,
+          count,
+        });
+      });
+      (word_cloud_data || []).forEach(([phrase, count]) => {
+        analysis.push({ product_id: productId, type: "Word", phrase, count });
+      });
+
+      if (sentiment_summary) {
+        Object.entries(sentiment_summary).forEach(([sentiment, count]) => {
+          analysis.push({
+            product_id: productId,
+            type: "Sentiment",
+            phrase: sentiment,
+            count,
+          });
+        });
+      }
+
+      const insightSets = [
+        { list: product.analysis?.duration_insights, type: "Duration" },
+        { list: product.analysis?.rating_insights, type: "Rating" },
+        { list: product.analysis?.trend_insights, type: "Trend" },
+      ];
+      insightSets.forEach(({ list, type }) => {
+        (list || []).forEach(({ message, sentiment }) => {
+          insights.push({ product_id: productId, type, message, sentiment });
+        });
+      });
+
+      const distSets = [
+        { name: "Duration", list: product.analysis?.duration_distribution },
+        { name: "Rating", list: product.analysis?.rating_distribution },
+        { name: "Trend", list: product.analysis?.trend_distribution },
+      ];
+      distSets.forEach(({ name, list }) => {
+        (list || []).forEach(({ key, data }) => {
+          distributions.push({ product_id: productId, type: name, key, data });
+        });
+      });
+    }
+  });
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(
+    wb,
+    XLSX.utils.json_to_sheet(products),
+    "Products"
+  );
+  XLSX.utils.book_append_sheet(
+    wb,
+    XLSX.utils.json_to_sheet(reviews),
+    "Reviews"
+  );
+  XLSX.utils.book_append_sheet(
+    wb,
+    XLSX.utils.json_to_sheet(analysis),
+    "Analysis"
+  );
+  XLSX.utils.book_append_sheet(
+    wb,
+    XLSX.utils.json_to_sheet(insights),
+    "Insights"
+  );
+  XLSX.utils.book_append_sheet(
+    wb,
+    XLSX.utils.json_to_sheet(distributions),
+    "Distributions"
+  );
+
+  XLSX.writeFile(wb, "BestBuyData.xlsx");
+}
+
+export const conversationToPPT = async (productData) => {
+  try {
+    const response = await fetch(import.meta.env.VITE_BEST_BUY_PPT_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(productData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // Ambil file blob (PPT)
+    const blob = await response.blob();
+
+    // Buat file download otomatis
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "SentiviewProduct.pptx";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+
+    console.log("✅ PPT berhasil diunduh.");
+  } catch (error) {
+    console.error("❌ Error converting to PPT:", error);
+    return { error: error.message };
+  }
+};

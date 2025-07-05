@@ -18,6 +18,7 @@ function InputAI({
   statusAiSendMsg,
   loadingAiResponse,
   setLoadingId,
+  loadingStep,
 }) {
   const [userInput, setUserInput] = useState("");
 
@@ -63,6 +64,7 @@ function InputAI({
           setLoadingId(data.id);
           addAiMessage(platform, data.id, message);
           statusAiSendMsg(true); // ? true krn kirim messege title, price, image, link
+          loadingStep(1);
 
           // TODO Scraping review
           try {
@@ -80,12 +82,12 @@ function InputAI({
             };
             updateAiMessage(platform, data.id, message);
 
-            console.log(review_scrape_data);
+            loadingStep(2);
 
             // TODO Analyzed Product
             try {
               const dataById = getConversationById("BestBuy", data.id);
-              console.log(dataById);
+              // console.log(dataById);
               const analyze_scrape_data = await conversationBestBuyAnalyze(
                 dataById
               );
@@ -93,12 +95,14 @@ function InputAI({
               updateAiMessage(platform, data.id, {
                 analysis: analyze_scrape_data.response.analysis,
               });
-              console.log(analyze_scrape_data.response.analysis);
+              loadingStep(3);
             } catch (error) {
               console.log("❌ conversationBestBuyProductAnalyze Error:", error);
             }
           } catch (error) {
             console.log("❌ conversationBestBuyProductReview Error:", error);
+          } finally {
+            loadingStep(0);
           }
         } else if (data && data.error) {
           addAiMessage(platform, data.id, data.error);

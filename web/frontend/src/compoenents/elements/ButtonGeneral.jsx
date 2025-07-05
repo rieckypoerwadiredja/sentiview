@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 
-function ButtonGeneral({ children, dropdown = [], bgColor = "#3a30ba" }) {
+function ButtonGeneral({
+  children,
+  dropdown = [],
+  bgColor = "#3a30ba",
+  onClick,
+}) {
   const [isOpen, setIsOpen] = useState(false);
-
   const hasDropdown = dropdown.length > 0;
 
   const toggleDropdown = () => setIsOpen((prev) => !prev);
@@ -12,12 +16,9 @@ function ButtonGeneral({ children, dropdown = [], bgColor = "#3a30ba" }) {
     <div className="relative inline-block text-left">
       <button
         type="button"
-        onClick={hasDropdown ? toggleDropdown : undefined}
+        onClick={hasDropdown ? toggleDropdown : onClick}
         style={{ backgroundColor: bgColor }}
-        onMouseEnter={(e) =>
-          (e.currentTarget.style.backgroundColor = darkenColor(bgColor, 0.1))
-        }
-        className={`flex justify-between text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center cursor-pointer me-2 mb-2`}
+        className={`flex justify-between text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center cursor-pointer me-2 mb-2 hover:opacity-90 transition`}
       >
         {children}
         {hasDropdown && (
@@ -37,7 +38,6 @@ function ButtonGeneral({ children, dropdown = [], bgColor = "#3a30ba" }) {
         )}
       </button>
 
-      {/* Jika punya dropdown, tampilkan menu dengan transisi */}
       {hasDropdown && (
         <div
           className={`absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none transition-all duration-200 ease-out transform ${

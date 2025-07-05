@@ -1,0 +1,256 @@
+{
+  "id": 85556073,
+  "role": "ai",
+  "response": {
+    "type": "product",
+    "title": "Bella - 3 x 1.5-Quart Triple Slow Cooker - Stainless Steel/Black",
+    "price": "$39.99",
+    "product_url": "https://www.bestbuy.com/site/bella-3-x-1-5-quart-triple-slow-cooker-stainless-steel-black/4310325.p?skuId=4310325&intl=nosplash",
+    "review_url": "https://www.bestbuy.com/site/reviews/bella-3-x-1-5-quart-triple-slow-cooker-stainless-steel-black/4310325",
+    "images": [
+      "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/4310/4310325_sd.jpg;maxHeight=1920;maxWidth=900?format=webp"
+    ],
+    "total_review": 702,
+    "reviews": [
+      {
+        "author": "AngieRose",
+        "body": "I love slow cooker meals, this is just the perfect size to make meals for family of 3. I work from home, i start dinner in the morning and by the time im done work, dinner is ready. Made spinach dip, italian sausage tomato sauce, and korean bulgogi for sunday football. Family dinner was amazing. We all dont like left overs so this 1.5 qt size is perfect. Very satisfied with this product.",
+        "images": [
+          "https://pisces.bbystatic.com/image2/BestBuy_US/ugc/photos/thumbnail/c37cbca94b33905d178d36522ac89e50.jpg;maxHeight=140;maxWidth=140?format=webp"
+        ],
+        "rating": 5,
+        "recommendation": true,
+        "review_info": {
+          "posted": {
+            "label": "January",
+            "month": 1
+          },
+          "used_duration": {
+            "duration": "less than 1 month",
+            "value": true
+          }
+        },
+        "title": "Making dinner is so much easy"
+      },
+      {
+        "author": "Shaunp45",
+        "body": "I love this little guy. You can have 3 things going at once. Its great for gatherings or potlucks. Each pot isn't huge but big enough to feed several people. I can't wait to make 3 different  types of chilli in them. Great value on sale too.",
+        "images": [
+          "https://pisces.bbystatic.com/image2/BestBuy_US/ugc/photos/thumbnail/fa20457dcbaa4410420f6537431a377b.jpg;maxHeight=140;maxWidth=140?format=webp"
+        ],
+        "rating": 5,
+        "recommendation": true,
+        "review_info": {
+          "posted": {
+            "label": "December",
+            "month": 12
+          },
+          "used_duration": {
+            "duration": "1 - 6 months",
+            "value": true
+          }
+        },
+        "title": "Awesome for potlucks"
+      }
+    ],
+    "analysis": {
+      "duration_distribution": [
+        {
+          "data": 299,
+          "key": "not used yet"
+        },
+        {
+          "data": 163,
+          "key": "less than 1 month"
+        },
+        {
+          "data": 198,
+          "key": "1 - 6 months"
+        },
+        {
+          "data": 26,
+          "key": "6 - 12 months"
+        },
+        {
+          "data": 16,
+          "key": "more than a year"
+        }
+      ],
+      "duration_insights": [
+        {
+          "message": "The majority of users have used the product for 1 - 6 months. This indicates a strong tendency toward this category.",
+          "sentiment": "neutral"
+        },
+        {
+          "message": "Product usage is spread across various durations, indicating variation in user experience.",
+          "sentiment": "neutral"
+        },
+        {
+          "message": "Most users have tried the product directly before giving a rating.",
+          "sentiment": "neutral"
+        }
+      ],
+      "rating_distribution": [
+        {
+          "data": 20,
+          "key": 1
+        },
+        {
+          "data": 5,
+          "key": 2
+        },
+        {
+          "data": 31,
+          "key": 3
+        },
+        {
+          "data": 109,
+          "key": 4
+        },
+        {
+          "data": 537,
+          "key": 5
+        }
+      ],
+      "rating_insights": [
+        {
+          "message": "The majority of users are very satisfied. This product is considered highly satisfactory.",
+          "sentiment": "positive"
+        },
+        {
+          "message": "Ratings 5 and 4 are the highest. Most users are consistently satisfied with the product's quality.",
+          "sentiment": "positive"
+        },
+        {
+          "message": "The rating distribution is skewed toward the high end. The product is considered very good by many users.",
+          "sentiment": "positive"
+        }
+      ],
+      "sentiment_summary": {
+        "negative": 21,
+        "neutral": 24,
+        "positive": 657
+      },
+      "top_cons": [
+        ["complaints", 3],
+        ["previous purchasers shipping label", 1],
+        ["3 shipping labels", 1],
+        ["return label", 1],
+        ["returned item", 1],
+        ["package ended", 1],
+        ["tje box", 1],
+        ["reccomend", 1],
+        ["whole corner ripped", 1],
+        ["chili dog bar", 1]
+      ],
+      "top_pros": [
+        ["great product", 54],
+        ["food warm", 27],
+        ["slow cooker", 26],
+        ["great price", 26],
+        ["convenient", 25],
+        ["works great", 25],
+        ["triple slow cooker", 23],
+        ["christmas", 19],
+        ["family gatherings", 18],
+        ["excellent", 17]
+      ],
+      "trend_distribution": [
+        {
+          "data": 169,
+          "key": "January"
+        },
+        {
+          "data": 156,
+          "key": "December"
+        },
+        {
+          "data": 44,
+          "key": "July"
+        },
+        {
+          "data": 47,
+          "key": "November"
+        },
+        {
+          "data": 40,
+          "key": "August"
+        },
+        {
+          "data": 52,
+          "key": "May"
+        },
+        {
+          "data": 56,
+          "key": "June"
+        },
+        {
+          "data": 33,
+          "key": "March"
+        },
+        {
+          "data": 38,
+          "key": "February"
+        },
+        {
+          "data": 21,
+          "key": "September"
+        },
+        {
+          "data": 26,
+          "key": "April"
+        },
+        {
+          "data": 20,
+          "key": "October"
+        }
+      ],
+      "trend_insights": [
+        {
+          "message": "The highest number of ratings was recorded in January. This indicates a peak in user activity.",
+          "sentiment": "positive"
+        },
+        {
+          "message": "The number of ratings shows a downward trend. Interest in the product may be starting to decline.",
+          "sentiment": "negative"
+        },
+        {
+          "message": "There is significant variation between months. Review activity appears seasonal or inconsistent.",
+          "sentiment": "neutral"
+        }
+      ],
+      "word_cloud_data": [
+        ["great", 492],
+        ["product", 174],
+        ["food", 167],
+        ["warm", 167],
+        ["love", 156],
+        ["slow", 151],
+        ["cooker", 146],
+        ["one", 144],
+        ["parties", 133],
+        ["good", 128],
+        ["perfect", 118],
+        ["easy", 111],
+        ["use", 108],
+        ["price", 94],
+        ["time", 92],
+        ["small", 89],
+        ["used", 87],
+        ["works", 86],
+        ["nice", 84],
+        ["family", 78],
+        ["party", 78],
+        ["keep", 74],
+        ["get", 71],
+        ["hot", 67],
+        ["three", 66],
+        ["pots", 65],
+        ["cook", 65],
+        ["well", 64],
+        ["bought", 64],
+        ["triple", 63]
+      ]
+    }
+  }
+}

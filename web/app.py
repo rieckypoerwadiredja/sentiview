@@ -1,7 +1,7 @@
 import nltk
 import logging
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify,send_file
 from flask_cors import CORS
 import joblib
 import re
@@ -14,6 +14,8 @@ from responses import negative_responses,positive_responses
 from langchain_ollama import ChatOllama
 import json
 import time
+from generate_ppt_from_template import generate_ppt_from_wrapped_json
+
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 
@@ -152,6 +154,26 @@ def analyze_bestbuy():
 
     return jsonify(analyzed_data )
 
+@app.route("/generate-ppt", methods=["POST"])
+def generate_from_product_json():
+    try:
+        full_data = request.json
+        if not isinstance(full_data, dict) or "response" not in full_data:
+            return jsonify({"error": "Invalid JSON structure. 'response' missing."}), 400
+
+        pptx_io, error = generate_ppt_from_wrapped_json(full_data)
+        if error:
+            return jsonify({"error": error}), 500
+
+        title = full_data["response"].get("title", "Product").replace(" ", "_").replace('"', "")
+        return send_file(
+            pptx_io,
+            as_attachment=True,
+            download_name=f"{title}.pptx",
+            mimetype="application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/ai", methods=["POST"])

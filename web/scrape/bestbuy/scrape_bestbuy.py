@@ -138,15 +138,23 @@ def scrape_bestbut_review(url):
     all_reviews = []
 
     while True:
-        # Modifikasi URL agar page-nya berubah
         parsed_url = urlparse(url)
         query = parse_qs(parsed_url.query)
-        query["page"] = [str(page)]
+
+        # Tetap pertahankan semua query (termasuk variant)
+        if page == 1:
+            query.pop("page", None)
+        else:
+            if "variant" not in query:
+                query["variant"] = ["A"]
+            query["page"] = [str(page)]
+
+        # Rebuild query string
         new_query = urlencode(query, doseq=True)
         page_url = urlunparse(parsed_url._replace(query=new_query))
 
-        print(f"🔄 Scraping page {page}: {page_url}")
         driver.get(page_url)
+        print(f"🔄 Scraping page {page}: {page_url}")
 
         try:
             WebDriverWait(driver, 10).until(
@@ -386,13 +394,208 @@ def analyze_product_data(product_data):
             del cons[phrase]
         else:
             del pros[phrase]
+            
+    # duration distribution
+    duration_keys = [
+        "not used yet",
+        "less than 1 month",
+        "1 - 6 months",
+        "6 - 12 months",
+        "more than a year"
+    ]
+    duration_distribution = {key: 0 for key in duration_keys}
 
+    for r in product_data["response"]["reviews"]:
+        duration_info = r.get("review_info", {}).get("used_duration", {})
+        if duration_info.get("value") is True:
+            label = duration_info.get("duration")
+        else:
+            label = "not used yet"
+
+        if label in duration_distribution:
+            duration_distribution[label] += 1
+
+    
+  # Hitung distribusi rating
+    rating_chart_data = [
+        {"key": int(k), "data": v}
+        for k, v in sorted(Counter([r["rating"] for r in product_data["response"]["reviews"]]).items())
+    ]
+
+    # Hitung distribusi durasi
+    duration_chart_data = [
+        {"key": k, "data": v}
+        for k, v in duration_distribution.items()
+    ]
+
+    # Hitung distribusi trend waktu review
+    trend_chart_data = [
+        {"key": k, "data": v}
+        for k, v in Counter([
+            r.get("review_info", {}).get("posted", {}).get("label", "unknown")
+            for r in product_data["response"]["reviews"]
+            if r.get("review_info", {}).get("posted")
+        ]).items()
+    ]
+    
     # Tambahkan ke struktur data hasil
     product_data["response"]["analysis"] = {
         "sentiment_summary": sentiment_counts,
         "top_pros": pros.most_common(10),
         "top_cons": cons.most_common(10),
         "word_cloud_data": word_freq.most_common(30),
+        "rating_insights": analyze_rating_distribution(product_data["response"]["reviews"]),
+        "duration_insights": analyze_usage_duration(product_data["response"]["reviews"]),
+        "trend_insights": analyze_rating_trend(product_data["response"]["reviews"]),
+        # Raw distribution
+        "rating_distribution": rating_chart_data,
+        "duration_distribution": duration_chart_data,
+        "trend_distribution": trend_chart_data,
     }
 
+    
+
     return product_data
+
+
+
+
+# TODO ANALYSIS Rating, used duration, time review
+
+def analyze_rating_distribution(reviews):
+    rating_counts = Counter(r["rating"] for r in reviews)
+    total = sum(rating_counts.values())
+
+    if total == 0:
+        return [{"sentiment": "neutral", "message": "Not enough rating data available for analysis."}]
+
+    insights = []
+    sorted_counts = sorted(rating_counts.items(), key=lambda x: x[1], reverse=True)
+    top_key, top_count = sorted_counts[0]
+    top_percentage = top_count / total
+
+    # Dominasi rating
+    if top_percentage >= 0.6:
+        if top_key == 5:
+            insights.append({"sentiment": "positive", "message": "The majority of users are very satisfied. This product is considered highly satisfactory."})
+        elif top_key == 4:
+            insights.append({"sentiment": "positive", "message": "Most users are fairly satisfied. The product is considered to be of good quality."})
+        elif top_key == 3:
+            insights.append({"sentiment": "neutral", "message": "Many users gave average ratings. The product may be mediocre or not meet expectations."})
+        else:
+            insights.append({"sentiment": "negative", "message": "The majority of users gave low ratings. The product is considered disappointing."})
+    else:
+        insights.append({"sentiment": "neutral", "message": "No dominant rating. User perceptions are quite diverse."})
+
+    # Perbandingan rating tertinggi & kedua
+    if len(sorted_counts) > 1:
+        top_key2, top_count2 = sorted_counts[1]
+        if top_key == 5 and top_key2 == 1:
+            insights.append({"sentiment": "neutral", "message": "Rating 5 is the highest, but rating 1 is also quite high. This product likely creates very different experiences among users — possibly controversial."})
+        elif top_key == 5 and top_key2 == 4:
+            insights.append({"sentiment": "positive", "message": "Ratings 5 and 4 are the highest. Most users are consistently satisfied with the product's quality."})
+        elif top_key == 5 and top_key2 <= 3:
+            insights.append({"sentiment": "neutral", "message": "Although rating 5 is the highest, many other users gave moderate or low ratings. This may indicate a mismatch in expectations for some users."})
+        elif top_key <= 2 and top_key2 == 5:
+            insights.append({"sentiment": "negative", "message": "Low ratings dominate, but rating 5 is also quite significant. This suggests highly varied user experiences and the product may be seen as inconsistent in quality."})
+        elif top_key <= 2 and top_key2 <= 2:
+            insights.append({"sentiment": "negative", "message": "Most users gave low ratings. The product tends to be disappointing and needs significant improvement."})
+        else:
+            insights.append({"sentiment": "neutral", "message": "The rating distribution is quite diverse without a clear dominant pattern. User experiences seem to vary."})
+
+    # Skewness
+    is_skew_high = rating_counts[5] > rating_counts[4] > rating_counts[3]
+    is_skew_low = rating_counts[1] > rating_counts[2] > rating_counts[3]
+    if is_skew_high:
+        insights.append({"sentiment": "positive", "message": "The rating distribution is skewed toward the high end. The product is considered very good by many users."})
+    elif is_skew_low:
+        insights.append({"sentiment": "negative", "message": "The rating distribution is skewed toward the low end. The product appears to be unsatisfactory for most users."})
+
+    return insights
+
+
+def analyze_usage_duration(reviews):
+    counter = Counter()
+    for r in reviews:
+        dur = r.get("review_info", {}).get("used_duration", {}).get("duration")
+        if dur:
+            counter[dur] += 1
+    total = sum(counter.values())
+    if total == 0:
+        return [{"sentiment": "neutral", "message": "Not enough rating data available for analysis."}]
+
+    insights = []
+    top = counter.most_common(1)[0]
+    if top[1] > 0:
+        sentiment = "positive" if top[0] in ["6 - 12 months", "more than a year"] else "neutral"
+        insights.append({"sentiment": sentiment, "message": f"The majority of users have used the product for {top[0]}. This indicates a strong tendency toward this category."})
+    else:
+        insights.append({"sentiment": "neutral", "message": "There is no dominant usage duration category yet."})
+
+    # Long-term usage
+    long_use = counter["6 - 12 months"] + counter["more than a year"]
+    if long_use / total > 0.5:
+        insights.append({"sentiment": "positive", "message": "The majority of users have used the product long-term. This indicates loyalty and product durability."})
+    elif counter["less than 1 month"] / total > 0.5:
+        insights.append({"sentiment": "neutral", "message": "Most users are new users. It takes time to assess long-term retention."})
+    else:
+        insights.append({"sentiment": "neutral", "message": "Product usage is spread across various durations, indicating variation in user experience."})
+
+    if counter["not used yet"] / total > 0.2:
+        insights.append({"sentiment": "neutral", "message": "A number of users gave ratings despite not having used the product directly. This may indicate high initial expectations or bias based on reputation."})
+    else:
+        insights.append({"sentiment": "neutral", "message": "Most users have tried the product directly before giving a rating."})
+
+    return insights
+
+
+def analyze_rating_trend(reviews):
+    month_counts = Counter()
+    for r in reviews:
+        month = r.get("review_info", {}).get("posted", {}).get("month")
+        if month:
+            month_counts[month] += 1
+    if not month_counts:
+        return [{"sentiment": "neutral", "message": "No review time data available for analysis."}]
+
+    insights = []
+
+    # Peak month
+    peak_month = max(month_counts, key=month_counts.get)
+    month_name = datetime.strptime(str(peak_month), "%m").strftime("%B")
+    insights.append({"sentiment": "positive", "message": f"The highest number of ratings was recorded in {month_name}. This indicates a peak in user activity."})
+
+    # Trend detection
+    sorted_months = sorted(month_counts.items())
+    trend = []
+    for i in range(1, len(sorted_months)):
+        prev = sorted_months[i - 1][1]
+        curr = sorted_months[i][1]
+        if curr > prev:
+            trend.append("up")
+        elif curr < prev:
+            trend.append("down")
+        else:
+            trend.append("flat")
+
+    ups = trend.count("up")
+    downs = trend.count("down")
+    if ups > len(trend) * 0.6:
+        insights.append({"sentiment": "positive", "message": "There is an upward trend in the number of ratings month over month. This product is gaining increasing attention."})
+    elif downs > len(trend) * 0.6:
+        insights.append({"sentiment": "negative", "message": "The number of ratings shows a downward trend. Interest in the product may be starting to decline."})
+    else:
+        insights.append({"sentiment": "neutral", "message": "The number of ratings fluctuates up and down. There is no consistent trend direction."})
+
+    # Stability
+    values = [v for _, v in sorted_months]
+    avg = sum(values) / len(values)
+    stddev = (sum((v - avg) ** 2 for v in values) / len(values)) ** 0.5
+    if stddev < avg * 0.3:
+        insights.append({"sentiment": "positive", "message": "The number of ratings per month is relatively stable. User activity has been fairly consistent over time."})
+    else:
+        insights.append({"sentiment": "neutral", "message": "There is significant variation between months. Review activity appears seasonal or inconsistent."})
+
+    return insights
+
+

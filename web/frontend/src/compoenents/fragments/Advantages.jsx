@@ -32,9 +32,106 @@ function Advantages() {
       <section className="py-16 px-4 md:px-8 lg:px-16 bg-[#FFF9F3]">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 items-center">
           <div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#030521] leading-tight">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#030521] leading-tight">
+              No-Code Dashboard for Review Insights
+            </h2>
+            <p className="mt-4 text-[#a2a1b7] text-lg">
+              Track trends and customer sentiment in a visual way—no code
+              needed. Simple, fast, and business-friendly.
+            </p>
+
+            <div className="mt-8 space-y-3">
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="h-5 w-5 text-[#3a30ba] mt-0.5 flex-shrink-0" />
+                <span className="text-[#030521]">
+                  Use pre-built dashboard with auto-updated charts
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="h-5 w-5 text-[#3a30ba] mt-0.5 flex-shrink-0" />
+                <span className="text-[#030521]">
+                  Track sentiment distribution by product or time
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="h-5 w-5 text-[#3a30ba] mt-0.5 flex-shrink-0" />
+                <span className="text-[#030521]">
+                  Designed for business & research needs
+                </span>
+              </div>
+            </div>
+            <div className="mt-8">
+              <Link
+                to="/sentiview-ai"
+                className="inline-flex items-center gap-2 bg-[#3a30ba] text-white px-6 py-3 rounded-md font-medium hover:bg-[#8c3bfc] transition-colors"
+              >
+                Start Analyzing
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+          <div className="relative">
+            <div className="bg-[#f6f6fc] p-4 rounded-lg">
+              <div className="relative rounded-lg overflow-hidden shadow-lg">
+                <img
+                  src="/feature/1.png"
+                  alt="Coffee shop website example"
+                  width={500}
+                  height={400}
+                  className="w-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Grid 1 */}
+      <section className="py-12 px-4 md:px-8 lg:px-16 bg-[#FFF9F3]">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
+          <div className="bg-white p-6 rounded-lg">
+            <div className="h-10 w-10 bg-[#eef2ff] rounded-md flex items-center justify-center mb-4">
+              <LayoutGrid className="h-5 w-5 text-[#3a30ba]" />
+            </div>
+            <h3 className="text-lg font-semibold text-[#030521]">
+              Visual Dashboard
+            </h3>
+            <p className="mt-2 text-[#a2a1b7]">
+              Interactive graphs and keyword clouds made for quick decisions.
+            </p>
+          </div>
+          <div className="bg-white p-6 rounded-lg">
+            <div className="h-10 w-10 bg-[#eef2ff] rounded-md flex items-center justify-center mb-4">
+              <ChartNoAxesCombined className="h-5 w-5 text-[#3a30ba]" />
+            </div>
+            <h3 className="text-lg font-semibold text-[#030521]">
+              Trend Detection
+            </h3>
+            <p className="mt-2 text-[#a2a1b7]">
+              Find what customers talk about most—before your competitors do.
+            </p>
+          </div>
+          <div className="bg-white p-6 rounded-lg">
+            <div className="h-10 w-10 bg-[#eef2ff] rounded-md flex items-center justify-center mb-4">
+              <Brain className="h-5 w-5 text-[#3a30ba]" />
+            </div>
+            <h3 className="text-lg font-semibold text-[#030521]">
+              Smart Export Options
+            </h3>
+            <p className="mt-2 text-[#a2a1b7]">
+              Download visuals or data as reports in one click.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* No-Code Website Builder Section */}
+      <section className="py-16 px-4 md:px-8 lg:px-16 bg-[#DE238E]/7">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#030521] leading-tight">
               Turn Customer Reviews into Business Insights with AI
-            </h1>
+            </h2>
             <p className="mt-4 text-[#a2a1b7] text-lg">
               Unlock the real voice of your customers with AI-powered sentiment
               analysis. Get beyond the stars—see what people really feel.
@@ -61,32 +158,28 @@ function Advantages() {
             </div>
             <div className="mt-8">
               <Link
-                href="#"
+                to="/sentiview-ai"
                 className="inline-flex items-center gap-2 bg-[#3a30ba] text-white px-6 py-3 rounded-md font-medium hover:bg-[#8c3bfc] transition-colors"
               >
-                Start Analyzing
+                See Dashboard
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
           <div className="relative">
-            <div className="bg-[#f6f6fc] p-4 rounded-lg">
-              <div className="relative rounded-lg overflow-hidden shadow-lg">
-                <img
-                  src="/feature/1.png"
-                  alt="Coffee shop website example"
-                  width={500}
-                  height={400}
-                  className="w-full object-cover"
-                />
-              </div>
-            </div>
+            <img
+              src="/feature/2.png"
+              alt="Website builder interface"
+              width={500}
+              height={400}
+              className="w-full rounded-lg shadow-lg"
+            />
           </div>
         </div>
       </section>
 
-      {/* Features Grid 1 */}
-      <section className="py-12 px-4 md:px-8 lg:px-16 bg-[#FFF9F3]">
+      {/* Features Grid 2 */}
+      <section className="py-12 px-4 md:px-8 lg:px-16 bg-[#DE238E]/7">
         <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
           <div className="bg-white p-6 rounded-lg">
             <div className="h-10 w-10 bg-[#eef2ff] rounded-md flex items-center justify-center mb-4">
@@ -126,99 +219,6 @@ function Advantages() {
         </div>
       </section>
 
-      {/* No-Code Website Builder Section */}
-      <section className="py-16 px-4 md:px-8 lg:px-16 bg-[#DE238E]/7">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 items-center">
-          <div>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#030521] leading-tight">
-              No-Code Dashboard for Review Insights
-            </h2>
-            <p className="mt-4 text-[#a2a1b7] text-lg">
-              Track trends and customer sentiment in a visual way—no code
-              needed. Simple, fast, and business-friendly.
-            </p>
-            <div className="mt-8 space-y-3">
-              <div className="flex items-start gap-2">
-                <CheckCircle2 className="h-5 w-5 text-[#3a30ba] mt-0.5 flex-shrink-0" />
-                <span className="text-[#030521]">
-                  Use pre-built dashboard with auto-updated charts
-                </span>
-              </div>
-              <div className="flex items-start gap-2">
-                <CheckCircle2 className="h-5 w-5 text-[#3a30ba] mt-0.5 flex-shrink-0" />
-                <span className="text-[#030521]">
-                  Track sentiment distribution by product or time
-                </span>
-              </div>
-              <div className="flex items-start gap-2">
-                <CheckCircle2 className="h-5 w-5 text-[#3a30ba] mt-0.5 flex-shrink-0" />
-                <span className="text-[#030521]">
-                  Designed for business & research needs
-                </span>
-              </div>
-            </div>
-            <div className="mt-8">
-              <Link
-                title="Coming Soon"
-                href="#"
-                className="inline-flex items-center gap-2 bg-[#b5b3f3] text-white px-6 py-3 rounded-md font-medium cursor-not-allowed opacity-70"
-              >
-                See Dashboard
-                <Lock className="h-4 w-4" />
-              </Link>
-            </div>
-          </div>
-          <div className="relative">
-            <img
-              src="/feature/2.png"
-              alt="Website builder interface"
-              width={500}
-              height={400}
-              className="w-full rounded-lg shadow-lg"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Features Grid 2 */}
-      <section className="py-12 px-4 md:px-8 lg:px-16 bg-[#DE238E]/7">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
-          <div className="bg-white p-6 rounded-lg">
-            <div className="h-10 w-10 bg-[#eef2ff] rounded-md flex items-center justify-center mb-4">
-              <LayoutGrid className="h-5 w-5 text-[#3a30ba]" />
-            </div>
-            <h3 className="text-lg font-semibold text-[#030521]">
-              Visual Dashboard
-            </h3>
-            <p className="mt-2 text-[#a2a1b7]">
-              Interactive graphs and keyword clouds made for quick decisions.
-            </p>
-          </div>
-          <div className="bg-white p-6 rounded-lg">
-            <div className="h-10 w-10 bg-[#eef2ff] rounded-md flex items-center justify-center mb-4">
-              <ChartNoAxesCombined className="h-5 w-5 text-[#3a30ba]" />
-            </div>
-            <h3 className="text-lg font-semibold text-[#030521]">
-              Trend Detection
-            </h3>
-            <p className="mt-2 text-[#a2a1b7]">
-              Find what customers talk about most—before your competitors do.
-            </p>
-          </div>
-          <div className="bg-white p-6 rounded-lg">
-            <div className="h-10 w-10 bg-[#eef2ff] rounded-md flex items-center justify-center mb-4">
-              <Brain className="h-5 w-5 text-[#3a30ba]" />
-            </div>
-            <h3 className="text-lg font-semibold text-[#030521]">
-              Smart Export Options
-            </h3>
-            <p className="mt-2 text-[#a2a1b7]">
-              Download visuals or data as reports in one click.
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* White-Label CMS Section */}
       <section className="py-16 px-4 md:px-8 lg:px-16 bg-white">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 items-center">
@@ -252,7 +252,7 @@ function Advantages() {
             </div>
             <div className="mt-8">
               <Link
-                href="#"
+                to="/sentiview-ai"
                 className="inline-flex items-center gap-2 bg-[#3a30ba] text-white px-6 py-3 rounded-md font-medium hover:bg-[#8c3bfc] transition-colors"
               >
                 Generate Insight Report
@@ -344,11 +344,12 @@ function Advantages() {
             </div>
             <div className="mt-8">
               <Link
-                href="#"
-                className="inline-flex items-center gap-2 bg-[#3a30ba] text-white px-6 py-3 rounded-md font-medium hover:bg-[#8c3bfc] transition-colors"
+                title="Coming Soon"
+                to="#"
+                className="inline-flex items-center gap-2 bg-[#b5b3f3] text-white px-6 py-3 rounded-md font-medium cursor-not-allowed opacity-70"
               >
-                Start With Your Data
-                <ArrowRight className="h-4 w-4" />
+                Comming Soon (Only from BestBuy for now)
+                <Lock className="h-4 w-4" />
               </Link>
             </div>
           </div>

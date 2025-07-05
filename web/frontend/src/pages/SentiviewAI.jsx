@@ -14,12 +14,9 @@ import {
   BestbuyOpening,
   GeneralOpening,
 } from "../compoenents/fragments/OpeningMessage";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-// animation
-import analyzingAnimation from "../assets/animation/analyzing.lottie";
-import scanningAimation from "../assets/animation/Scanning.lottie";
 import Dashboard from "../compoenents/fragments/Dashboard";
 import { roomReducer, VALID_ROOMS } from "../utils/roomReducer";
+import LoadingStepAnimation from "../compoenents/fragments/LoadingStepAnimation";
 
 export default function SentiviewAI() {
   const [fullSideBar, setFullSideBar] = useState(false);
@@ -33,24 +30,7 @@ export default function SentiviewAI() {
   const [loadingId, setLoadingId] = useState("");
   const ref = useChatScroll(conversationActive);
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const animations = [
-    {
-      text: "Scanning",
-      anim: scanningAimation,
-    },
-    {
-      text: "Analyzing",
-      anim: analyzingAnimation,
-    },
-  ];
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % animations.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
+  const [loadingStep, setLoadingStep] = useState(0);
 
   useEffect(() => {
     const Conversations = getConversation();
@@ -225,7 +205,10 @@ export default function SentiviewAI() {
                   className="max-w-7xl w-full mx-auto bg-white p-4 rounded-xl shadow-lg mb-4"
                 >
                   {convercation.response.type === "product" ? (
-                    <Dashboard data={convercation} />
+                    <Dashboard
+                      data={convercation}
+                      id={convercation.id || index}
+                    />
                   ) : (
                     <p>{convercation.response}</p>
                   )}
@@ -259,17 +242,14 @@ export default function SentiviewAI() {
           })}
 
           {loadingAiResponse && (
-            <div className="h-[500px] w-full flex flex-col items-center justify-center">
-              <div className="w-64 h-64 flex items-center justify-center">
-                <DotLottieReact src={animations[currentIndex].anim} autoplay />
-              </div>
-              <p className="text-lg text-center -mt-12 text-gray-400 font-semibold flex items-center gap-1">
-                {animations[currentIndex].text}
-                <span className="dot-pulse ml-1">
-                  <span>.</span> <span>.</span> <span>.</span>
-                </span>
-              </p>
-            </div>
+            <LoadingStepAnimation
+              step={[
+                "Get Product Info",
+                "Get Review",
+                "Get Dashboard & Analyze",
+              ]}
+              activeStep={loadingStep} // if 1, "Get Product Info" is done
+            />
           )}
         </div>
         {roomActive !== "" ? (
@@ -279,6 +259,7 @@ export default function SentiviewAI() {
             statusAiSendMsg={setAiSendMsg}
             loadingAiResponse={setLoadingAiResponse}
             setLoadingId={setLoadingId}
+            loadingStep={setLoadingStep}
           />
         ) : (
           <div className="p-4 bg-white border-t">
