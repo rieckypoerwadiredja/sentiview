@@ -1,5 +1,9 @@
 # 🧠 Sentiview - Intelligent Review Analyzer
 
+[![Run Project](https://img.shields.io/badge/-How_to_Run_Project-blue?style=for-the-badge)](/web/readme.md)
+
+![License](https://img.shields.io/badge/license-MIT-green)
+
 Sentiview is a sentiment analysis system powered by Natural Language Processing (NLP), designed to help business owners uncover the true performance of their products by analyzing customer comments—beyond just numerical ratings. By automatically processing thousands of product reviews from e-commerce platforms, Sentiview provides deeper and more accurate insights for both business evaluation and competitor analysis.
 
 # 📌 Project Overview
