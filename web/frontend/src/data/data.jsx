@@ -14,44 +14,44 @@ import {
 
 const lovedByCompanies = [
   {
-    src: "/logo/company/flippa.png",
+    src: "/logo/company/example.png",
     alt: "Flippa",
-    width: 120,
+    width: 140,
     height: 40,
     className: "h-10 w-auto object-contain",
   },
   {
-    src: "/logo/company/binus.png",
+    src: "/logo/company/example.png",
     alt: "Binus",
-    width: 100,
-    height: 60,
+    width: 140,
+    height: 40,
     className: "h-10 w-auto object-contain",
   },
   {
-    src: "/logo/company/decathlon.jpeg",
+    src: "/logo/company/example.png",
     alt: "Decathlon",
     width: 140,
     height: 40,
     className: "h-10 w-auto object-contain",
   },
   {
-    src: "/logo/company/hacktiv8.png",
+    src: "/logo/company/example.png",
     alt: "hacktiv8",
-    width: 60,
+    width: 140,
     height: 40,
     className: "h-10 w-auto object-contain",
   },
   {
-    src: "/logo/company/indofood.png",
+    src: "/logo/company/example.png",
     alt: "indofood",
-    width: 100,
+    width: 140,
     height: 40,
     className: "h-8 w-auto object-contain",
   },
   {
-    src: "/logo/company/xendit.png",
+    src: "/logo/company/example.png",
     alt: "xendit",
-    width: 120,
+    width: 140,
     height: 40,
     className: "h-10 w-auto object-contain",
   },
@@ -59,37 +59,37 @@ const lovedByCompanies = [
 
 const happyCompany = [
   {
-    src: "/logo/company/ruangguru.png",
+    src: "/logo/company/example.png",
     alt: "Ruang Guru",
     width: 120,
     height: 40,
   },
   {
-    src: "/logo/company/kopi-kenangan.png",
+    src: "/logo/company/example.png",
     alt: "Kopi Kenangan",
     width: 120,
     height: 40,
   },
   {
-    src: "/logo/company/niessen.png",
+    src: "/logo/company/example.png",
     alt: "Niessen",
     width: 120,
     height: 40,
   },
   {
-    src: "/logo/company/chatime.png",
+    src: "/logo/company/example.png",
     alt: "Chatime",
     width: 120,
     height: 40,
   },
   {
-    src: "/logo/company/bukalapak.png",
+    src: "/logo/company/example.png",
     alt: "Bukalapak",
     width: 120,
     height: 50,
   },
   {
-    src: "/logo/company/tokopedia.png",
+    src: "/logo/company/example.png",
     alt: "Tokopedia",
     width: 120,
     height: 40,
@@ -214,6 +214,7 @@ const featuredOn = [
     width: 150,
     height: 80,
     className: "h-10 w-auto object-cover",
+    status: "active", // Satu-satunya yang aktif
   },
   {
     src: "/logo/company/youtube.png",
@@ -221,6 +222,7 @@ const featuredOn = [
     width: 80,
     height: 40,
     className: "h-8 w-auto object-contain",
+    status: "soon",
   },
   {
     src: "/logo/company/walmart.png",
@@ -228,6 +230,7 @@ const featuredOn = [
     width: 80,
     height: 80,
     className: "h-14 w-auto object-contain",
+    status: "soon",
   },
   {
     src: "/logo/company/HubSport.png",
@@ -235,6 +238,7 @@ const featuredOn = [
     width: 100,
     height: 40,
     className: "h-8 w-auto object-contain",
+    status: "soon",
   },
   {
     src: "/logo/company/tokopedia.png",
@@ -242,6 +246,7 @@ const featuredOn = [
     width: 120,
     height: 40,
     className: "h-8 w-auto object-contain",
+    status: "soon",
   },
 ];
 

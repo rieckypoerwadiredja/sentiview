@@ -81,7 +81,7 @@ function Hero() {
       <div className="pt-18 bg-[#FFF9F3]">
         <div className="container px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-center gap-8 md:gap-12 flex-wrap">
-            <p className="text-sm text-gray-500">Featured on:</p>
+            <p className="text-sm text-gray-500">Compatible with:</p>
             <FlexHorizontal data={featuredOn} />
           </div>
         </div>
